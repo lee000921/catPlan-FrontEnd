@@ -73,9 +73,8 @@
         <view class="rules-title">任务规则</view>
         <view class="rules-content">
           <view class="rule-item">1. 日常任务每日0点刷新</view>
-          <view class="rule-item">2. 新手任务仅可完成一次</view>
-          <view class="rule-item">3. 成长任务长期有效，可持续累计</view>
-          <view class="rule-item">4. 任务完成后碎片将自动发放</view>
+          <view class="rule-item">2. 成长任务长期有效，可持续累计</view>
+          <view class="rule-item">3. 任务完成后碎片将自动发放</view>
         </view>
       </view>
     </block>

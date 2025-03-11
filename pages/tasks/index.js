@@ -6,126 +6,37 @@ Page({
     userInfo: null,
     isLogin: false,
     loading: true,
-    taskGroups: [
-      {
-        title: '日常任务',
-        desc: '每日可完成',
-        tasks: [
-          {
-            id: 'daily_1',
-            title: '浏览商品',
-            desc: '浏览3个商品详情页',
-            points: 5,
-            progress: 0,
-            maxProgress: 3,
-            completed: false,
-            buttonText: '去完成'
-          },
-          {
-            id: 'daily_2',
-            title: '分享小程序',
-            desc: '分享小程序给好友',
-            points: 10,
-            progress: 0,
-            maxProgress: 1,
-            completed: false,
-            buttonText: '去完成'
-          },
-          {
-            id: 'daily_3',
-            title: '观看视频',
-            desc: '观看一个推广视频',
-            points: 8,
-            progress: 0,
-            maxProgress: 1,
-            completed: false,
-            buttonText: '去完成'
-          }
-        ]
-      },
-      {
-        title: '新手任务',
-        desc: '新用户专享，仅可完成一次',
-        tasks: [
-          {
-            id: 'newbie_1',
-            title: '完善个人资料',
-            desc: '补充个人信息',
-            points: 20,
-            progress: 0,
-            maxProgress: 1,
-            completed: false,
-            buttonText: '去完成'
-          },
-          {
-            id: 'newbie_2',
-            title: '绑定手机号',
-            desc: '绑定手机号获得安全保障',
-            points: 15,
-            progress: 0,
-            maxProgress: 1,
-            completed: false,
-            buttonText: '去完成'
-          },
-          {
-            id: 'newbie_3',
-            title: '关注公众号',
-            desc: '关注我们的公众号',
-            points: 10,
-            progress: 0,
-            maxProgress: 1,
-            completed: false,
-            buttonText: '去完成'
-          }
-        ]
-      },
-      {
-        title: '成长任务',
-        desc: '持续累计，长期有效',
-        tasks: [
-          {
-            id: 'growth_1',
-            title: '累计签到7天',
-            desc: '累计签到满7天',
-            points: 30,
-            progress: 0,
-            maxProgress: 7,
-            completed: false,
-            buttonText: '去签到'
-          },
-          {
-            id: 'growth_2',
-            title: '累计签到30天',
-            desc: '累计签到满30天',
-            points: 100,
-            progress: 0,
-            maxProgress: 30,
-            completed: false,
-            buttonText: '去签到'
-          },
-          {
-            id: 'growth_3',
-            title: '累计兑换3次',
-            desc: '累计兑换商品3次',
-            points: 50,
-            progress: 0,
-            maxProgress: 3,
-            completed: false,
-            buttonText: '去兑换'
-          }
-        ]
-      }
-    ],
     completedTasks: 0,
     totalTasks: 0,
-    todayEarnedPoints: 0
+    todayEarnedPoints: 0,
+    taskGroups : []
   },
 
   onLoad: function() {
     this.checkLoginStatus();
+    // wx.cloud.callFunction({
+    //   name: 'initTaskCollection',
+    //   data: {},
+    //   success: res => {
+    //     console.log('[云函数] [initTaskCollection] 调用成功', res);
+    //   },
+    //   fail: err => {
+    //     console.error('[云函数] [getTasks] 调用失败', err);
+    //     this.setData({ loading: false });
+    //     wx.showToast({
+    //       title: '获取任务数据失败',
+    //       icon: 'none'
+    //     });
+    //   }
+    // });
   },
 
   onShow: function() {
+    if (app.globalData.isLogin !== this.data.isLogin) {
+      this.setData({
+        isLogin: app.globalData.isLogin
+      });
+    }
     if (this.data.isLogin) {
       this.fetchTaskData();
     }
@@ -148,51 +59,124 @@ Page({
     }
   },
 
+  // 判断时间是不是在今天范围内
+  isToday: function(date) {
+    // 这里的date是string形式的时间，转换成时间戳
+    date = new Date(date);
+    const currentTime = date.getTime();
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const beginTime = now.getTime();
+    now.setHours(23, 59, 59, 999);
+    const endTime = now.getTime();
+    return currentTime >= beginTime && currentTime <= endTime;
+  },
+
   // 获取任务数据
   fetchTaskData: function() {
     this.setData({ loading: true });
-    
-    // 模拟获取任务数据
-    setTimeout(() => {
-      // 随机生成一些任务进度
-      const taskGroups = this.data.taskGroups.map(group => {
-        group.tasks = group.tasks.map(task => {
-          if (task.id === 'daily_1') {
-            task.progress = 2;
-          } else if (task.id === 'growth_1') {
-            task.progress = 5;
-          } else if (task.id === 'newbie_1') {
-            task.progress = 1;
-            task.completed = true;
-            task.buttonText = '已完成';
-          }
-          return task;
+
+    // 从云平台collections中读取任务数据
+    wx.cloud.callFunction({
+      name: 'getTasks',
+      data: {},
+      success: res => {
+        const tasks = res.result.data;
+        const dailyTasks = tasks.dailyTasks;
+        const growthTasks = tasks.growthTasks;
+        const taskGroups = [
+          { title: '每日任务', 
+            desc: '每日任务，每天完成任务可获得碎片',
+            tasks: dailyTasks },
+          { title: '成长任务', 
+            desc: '成长任务，完成任务可获得更多碎片',
+            tasks: growthTasks }
+        ];
+
+        wx.cloud.callFunction({
+          name: 'getUserInfo',
+          data: {},
+          success: res => {
+            if (res.result && res.result.data) {
+              const userInfo = res.result.data;
+              console.log('用户信息', userInfo);
+              // 先处理每日任务，先判断userInfo中是否存在该taskId，若存在，判断finishTime是否为今天，若是，则progress+1
+              taskGroups.forEach(group => {
+                if (group.title === '每日任务') {
+                  group.tasks.forEach(task => {
+                    const userTask = userInfo.tasks.find(t => t.taskId === task._id);
+                    if (userTask && this.isToday(userTask.finishTime)) {
+                      task.progress = 1;
+                      task.completed = task.progress === task.maxProgress;
+                    }
+                  });
+                } else {
+                  // 处理成长任务，先判断userInfo中是否存在该taskId，若存在，判断progress是否等于maxProgress，若是，则completed=true
+                    
+                  // 创建一个map，key为taskId，value为出现次数
+                  const taskCountMap = userInfo.tasks.reduce((acc, task) => {
+                    // 从每个任务对象中获取 taskId
+                    const taskId = task.taskId;
+                    
+                    // 增加该 taskId 的计数
+                    acc[taskId] = (acc[taskId] || 0) + 1;
+                    
+                    return acc;
+                }, {});
+                    group.tasks.forEach(task => {
+                    if (taskCountMap[task._id]) {
+                      task.progress = taskCountMap[task._id];
+                      task.completed = task.progress === task.maxProgress;
+                    }
+                  });
+                }
+              });
+              // 计算已完成任务数和总任务数
+              let completedTasks = 0;
+              let totalTasks = 0;
+              let todayEarnedPoints = 0;
+
+              console.log(taskGroups);
+
+              // 对每个task，根据completed状态，添加buttonText字段
+              taskGroups.forEach(group => {
+                group.tasks.forEach(task => {
+                  totalTasks++;
+                  if (task.completed) {
+                    completedTasks++;
+                    todayEarnedPoints += task.points;
+                    task.buttonText = '已完成';
+                  } else {
+                    task.buttonText = '去完成';
+                  }
+              });
         });
-        return group;
-      });
-      
-      // 计算已完成任务数和总任务数
-      let completedTasks = 0;
-      let totalTasks = 0;
-      let todayEarnedPoints = 20; // 模拟今日已获得的碎片
-      
-      taskGroups.forEach(group => {
-        group.tasks.forEach(task => {
-          totalTasks++;
-          if (task.completed) {
-            completedTasks++;
+
+        this.setData({
+          taskGroups,
+          completedTasks,
+          totalTasks,
+          todayEarnedPoints,
+          loading: false
+        });
+            }
+          },
+          fail: err => {
+            console.error('[云函数] [getUserInfo] 调用失败', err);
           }
         });
-      });
-      
-      this.setData({
-        taskGroups,
-        completedTasks,
-        totalTasks,
-        todayEarnedPoints,
-        loading: false
-      });
-    }, 500);
+
+        
+      },
+      fail: err => {
+        console.error('[云函数] [getTasks] 调用失败', err);
+        this.setData({ loading: false });
+        wx.showToast({
+          title: '获取任务数据失败',
+          icon: 'none'
+        });
+      }
+    });
   },
 
   // 处理任务点击
@@ -215,86 +199,20 @@ Page({
       return;
     }
 
-    // 根据不同任务ID进行不同处理
-    switch(task.id) {
-      case 'daily_1':
-        // 浏览商品任务
-        wx.showModal({
-          title: '任务模拟',
-          content: '这里模拟浏览商品任务，实际应跳转到商品列表',
-          showCancel: false,
-          success: () => {
-            this.updateTaskProgress(groupIndex, taskIndex, task.progress + 1);
-          }
-        });
-        break;
-      case 'daily_2':
-        // 分享小程序任务
-        wx.showShareMenu({
-          withShareTicket: true,
-          menus: ['shareAppMessage', 'shareTimeline'],
-          success: () => {
-            // 实际应在用户分享成功后才更新进度
-            setTimeout(() => {
-              this.updateTaskProgress(groupIndex, taskIndex, 1);
-            }, 1000);
-          }
-        });
-        break;
-      case 'daily_3':
-        // 观看视频任务
-        wx.showModal({
-          title: '任务模拟',
-          content: '这里模拟观看视频任务，实际应播放广告或视频',
-          showCancel: false,
-          success: () => {
-            this.updateTaskProgress(groupIndex, taskIndex, 1);
-          }
-        });
-        break;
-      case 'newbie_1':
-        // 完善个人资料
-        wx.navigateTo({
-          url: '/pages/user/profile'
-        });
-        break;
-      case 'newbie_2':
-        // 绑定手机号
-        wx.navigateTo({
-          url: '/pages/user/profile?tab=phone'
-        });
-        break;
-      case 'newbie_3':
-        // 关注公众号
-        wx.showModal({
-          title: '关注公众号',
-          content: '请长按识别下方二维码关注公众号',
-          showCancel: false,
-          success: () => {
-            // 实际应在用户确认关注后才更新进度
-            this.updateTaskProgress(groupIndex, taskIndex, 1);
-          }
-        });
-        break;
-      case 'growth_1':
-      case 'growth_2':
-        // 累计签到任务
-        wx.switchTab({
-          url: '/pages/checkin/index'
-        });
-        break;
-      case 'growth_3':
-        // 累计兑换任务
-        wx.switchTab({
-          url: '/pages/exchange/index'
-        });
-        break;
-      default:
-        wx.showToast({
-          title: '任务开发中',
-          icon: 'none'
-        });
-    }
+    //
+    wx.cloud.callFunction({
+      name: 'updateUserInfo',
+      data: {
+        taskId: task._id
+      },
+      success: res => {
+        console.log('[云函数] [updateUserInfo] 调用成功', res);
+        this.updateTaskProgress(groupIndex, taskIndex, task.progress + 1);
+      },
+      fail: err => {
+        console.error('[云函数] [updateUserInfo] 调用失败', err);
+      }
+    });
   },
 
   // 更新任务进度
@@ -314,6 +232,19 @@ Page({
       this.setData({
         completedTasks: this.data.completedTasks + 1,
         todayEarnedPoints: this.data.todayEarnedPoints + task.points
+      });
+
+      wx.cloud.callFunction({
+        name: 'updateUserInfo',
+        data: {
+          point: task.points,
+        },
+        success: res => {
+          console.log('[云函数] [updateUserInfo] 调用成功', res);
+        },
+        fail: err => {
+          console.error('[云函数] [updateUserInfo] 调用失败', err);
+        }
       });
       
       // 显示获得碎片提示
