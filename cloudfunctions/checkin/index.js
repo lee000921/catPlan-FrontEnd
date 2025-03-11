@@ -24,7 +24,7 @@ exports.main = async (event, context) => {
   try {
     // 查询用户是否存在
     const userResult = await userCollection.where({
-      _openid: openid
+      openId: openid
     }).get()
     
     if (userResult.data.length === 0) {
@@ -70,19 +70,19 @@ exports.main = async (event, context) => {
       consecutiveCheckinDays = 1
     }
     
-    // 计算基础积分和额外奖励
-    let basePoints = 5 // 基础签到积分
-    let bonusPoints = 0 // 连续签到奖励积分
+    // 计算基础碎片和额外奖励
+    let basePoints = 5 // 基础签到碎片
+    let bonusPoints = 0 // 连续签到奖励碎片
     
     // 连续签到奖励规则
     const milestones = [
-      { day: 7, points: 30 },
-      { day: 15, points: 50 },
-      { day: 30, points: 100 },
-      { day: 5, points: 20 },
-      { day: 3, points: 15 },
-      { day: 2, points: 10 },
-      { day: 1, points: 5 }
+      { day: 10, points: 2 },
+      { day: 15, points: 3 },
+      { day: 30, points: 5 },
+      { day: 7, points: 2 },
+      { day: 5, points: 1 },
+      { day: 3, points: 1 },
+      { day: 1, points: 1 }
     ]
     
     // 检查是否达到里程碑
@@ -91,7 +91,7 @@ exports.main = async (event, context) => {
       bonusPoints = milestone.points
     }
     
-    // 更新用户签到信息和积分
+    // 更新用户签到信息和碎片
     const totalPoints = user.points + basePoints + bonusPoints
     const checkinDays = (user.checkinDays || 0) + 1
     

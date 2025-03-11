@@ -23,11 +23,11 @@
       </view>
     </view>
 
-    <!-- 积分信息 -->
+    <!-- 碎片信息 -->
     <view class="points-card">
       <view class="points-header">
-        <view class="points-title">我的积分</view>
-        <view class="points-rules" bindtap="goToPointsRules">积分规则</view>
+        <view class="points-title">我的碎片</view>
+        <view class="points-rules" bindtap="goToPointsRules">碎片规则</view>
       </view>
       <view class="points-content">
         <view class="total-points">{{pointsInfo.total}}</view>
@@ -63,7 +63,7 @@
         <view class="function-icon exchange">
           <t-icon name="shop" size="48rpx" color="#007aff" />
         </view>
-        <view class="function-text">积分兑换</view>
+        <view class="function-text">碎片兑换</view>
       </navigator>
     </view>
 

@@ -174,7 +174,7 @@ Page({
       // 计算已完成任务数和总任务数
       let completedTasks = 0;
       let totalTasks = 0;
-      let todayEarnedPoints = 20; // 模拟今日已获得的积分
+      let todayEarnedPoints = 20; // 模拟今日已获得的碎片
       
       taskGroups.forEach(group => {
         group.tasks.forEach(task => {
@@ -310,15 +310,15 @@ Page({
       task.completed = true;
       task.buttonText = '已完成';
       
-      // 更新完成任务数和今日获得积分
+      // 更新完成任务数和今日获得碎片
       this.setData({
         completedTasks: this.data.completedTasks + 1,
         todayEarnedPoints: this.data.todayEarnedPoints + task.points
       });
       
-      // 显示获得积分提示
+      // 显示获得碎片提示
       wx.showToast({
-        title: `任务完成 +${task.points}积分`,
+        title: `任务完成 +${task.points}碎片`,
         icon: 'success'
       });
     }

@@ -2,7 +2,7 @@
   <view class="login-header">
     <image class="logo" src="/assets/icons/default-avatar.png" mode="aspectFit"></image>
     <view class="app-name">猫咪计划</view>
-    <view class="app-slogan">每日签到，完成任务，赢取积分</view>
+    <view class="app-slogan">每日签到，完成任务，赢取碎片</view>
   </view>
 
   <view class="login-methods">
@@ -12,20 +12,7 @@
         <text>微信一键登录</text>
       </view>
     </button>
-
-    <button class="login-btn profile-btn" bindtap="handleUserProfile" loading="{{isLoading}}">
-      <view class="btn-inner">
-        <view class="btn-icon profile-icon"></view>
-        <text>获取用户信息登录</text>
-      </view>
-    </button>
-
-    <button class="login-btn phone-btn" bindtap="handlePhoneLogin">
-      <view class="btn-inner">
-        <view class="btn-icon phone-icon"></view>
-        <text>手机号登录/注册</text>
-      </view>
-    </button>
+    <view class="login-tips-text">推荐使用，快捷安全</view>
   </view>
 
   <view class="privacy-agreement">
@@ -47,7 +34,7 @@
     <view class="tips-list">
       <view class="tip-item">
         <view class="tip-icon"></view>
-        <text>每日签到获取积分</text>
+        <text>每日签到获取碎片</text>
       </view>
       <view class="tip-item">
         <view class="tip-icon"></view>
@@ -55,7 +42,7 @@
       </view>
       <view class="tip-item">
         <view class="tip-icon"></view>
-        <text>积分兑换精美礼品</text>
+        <text>碎片兑换精美礼品</text>
       </view>
     </view>
   </view>

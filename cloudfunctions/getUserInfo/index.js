@@ -20,11 +20,15 @@ exports.main = async (event, context) => {
     }
   }
 
+  console.log('获取到的openid：', openid)
+
   try {
     // 查询用户是否已经存在
     const userResult = await userCollection.where({
-      _openid: openid
+      openId: openid
     }).get()
+
+    console.log('userResult', userResult)
     
     // 如果用户不存在，返回空数据
     if (userResult.data.length === 0) {

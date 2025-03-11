@@ -13,7 +13,7 @@ exports.main = async (event, context) => {
   console.log('login云函数被调用，参数：', event);
   
   const wxContext = cloud.getWXContext()
-  const openid = wxContext.OPENID
+  const openid = event.userInfo.openId ? event.userInfo.openId : wxContext.OPENID
   
   console.log('获取到的openid：', openid);
   
@@ -29,7 +29,7 @@ exports.main = async (event, context) => {
     // 查询用户是否已经存在
     console.log('查询用户是否存在');
     const userResult = await userCollection.where({
-      _openid: openid
+      openId: openid
     }).get()
     
     console.log('查询结果：', userResult);
@@ -39,7 +39,6 @@ exports.main = async (event, context) => {
     // 用户信息，合并传入的数据和openid
     const userData = {
       ...event.userInfo,
-      _openid: openid,
       lastLoginTime: now
     }
     
@@ -51,7 +50,7 @@ exports.main = async (event, context) => {
       // 设置新用户的初始数据
       const newUser = {
         ...userData,
-        points: 100, // 初始积分
+        points: 0, // 初始碎片
         level: 1,
         checkinDays: 0,
         consecutiveCheckinDays: 0,
@@ -88,7 +87,7 @@ exports.main = async (event, context) => {
       // 更新用户数据，保留原有数据
       const updateData = {
         ...userData,
-        points: user.points || 100,
+        points: user.points || 0,
         level: user.level || 1,
         checkinDays: user.checkinDays || 0,
         consecutiveCheckinDays: user.consecutiveCheckinDays || 0,

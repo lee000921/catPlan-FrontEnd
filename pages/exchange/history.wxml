@@ -30,7 +30,7 @@
             <image class="item-image" src="{{item.itemImage || '/assets/images/exchange/default.png'}}" mode="aspectFill" />
             <view class="item-info">
               <view class="item-title">{{item.itemTitle}}</view>
-              <view class="item-points">{{item.points}}积分</view>
+              <view class="item-points">{{item.points}}碎片</view>
             </view>
           </view>
 

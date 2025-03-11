@@ -11,60 +11,76 @@ const userCollection = db.collection('users')
 // 云函数入口函数
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-  const openid = wxContext.OPENID
+  const { userInfo, isNew } = event
   
-  if (!openid) {
-    return {
-      success: false,
-      message: '获取用户openid失败'
-    }
-  }
-
-  // 获取要更新的数据
-  const updateData = event.data || {}
-  
-  // 防止更新敏感字段
-  delete updateData._id
-  delete updateData._openid
-  delete updateData.registerTime
+  // 确保有openid
+  const openid = userInfo.openid || wxContext.OPENID
   
   try {
-    // 查询用户是否已经存在
+    // 检查用户是否已存在
     const userResult = await userCollection.where({
-      _openid: openid
+      openId: openid
     }).get()
     
-    // 如果用户不存在，返回错误
     if (userResult.data.length === 0) {
-      return {
-        success: false,
-        message: '用户不存在'
+      // 创建新用户
+      const newUser = {
+        ...userInfo,
+        openid,
+        points: 0, // 初始碎片
+        level: 1,
+        checkinDays: 0,
+        consecutiveCheckinDays: 0,
+        lastCheckinDate: null,
+        registerTime: db.serverDate(),
+        updateTime: db.serverDate(),
+        tasks: {
+          daily: [],
+          newbie: [],
+          growth: []
+        },
+        exchanges: []
       }
-    } 
-    // 用户已存在，更新用户信息
-    else {
-      const user = userResult.data[0]
       
-      // 更新用户
-      await userCollection.doc(user._id).update({
-        data: updateData
+      const result = await userCollection.add({
+        data: newUser
       })
-      
-      // 获取更新后的用户信息
-      const updatedUser = await userCollection.doc(user._id).get()
-      
       return {
         success: true,
-        message: '用户信息更新成功',
-        data: updatedUser.data
+        isNew: true,
+        userId: result._id,
+        openid
+      }
+    } else {
+      // 更新现有用户
+      const userId = userResult.data[0]._id
+      
+      // 只更新提供的字段，避免覆盖现有数据
+      const updateData = {
+        ...userInfo,
+        updateTime: db.serverDate()
+      }
+      
+      // 删除openid避免重复
+      if (updateData.openid) {
+        delete updateData.openid
+      }
+      
+      await userCollection.doc(userId).update({
+        data: updateData
+      })
+      return {
+        success: true,
+        isNew: false,
+        userId,
+        openid
       }
     }
-  } catch (error) {
-    console.error('更新用户信息失败', error)
+  } catch (err) {
+    console.error('更新用户信息失败', err)
     return {
       success: false,
-      message: '更新用户信息失败: ' + error.message,
-      error
-    }
+      error: err
+}
   }
 }

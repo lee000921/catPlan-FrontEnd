@@ -217,10 +217,10 @@ Page({
       return;
     }
     
-    // 检查积分是否足够
+    // 检查碎片是否足够
     if (this.data.userInfo.points < item.points) {
       wx.showToast({
-        title: '积分不足',
+        title: '碎片不足',
         icon: 'none'
       });
       return;
@@ -229,7 +229,7 @@ Page({
     // 确认兑换
     wx.showModal({
       title: '确认兑换',
-      content: `确定使用${item.points}积分兑换"${item.title}"吗？`,
+      content: `确定使用${item.points}碎片兑换"${item.title}"吗？`,
       success: (res) => {
         if (res.confirm) {
           this.processExchange(item);
@@ -248,7 +248,7 @@ Page({
     setTimeout(() => {
       wx.hideLoading();
       
-      // 更新用户积分
+      // 更新用户碎片
       const userInfo = this.data.userInfo;
       userInfo.points -= item.points;
       

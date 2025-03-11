@@ -7,7 +7,7 @@
   <block wx:else>
     <!-- 未登录状态 -->
     <view class="not-login" wx:if="{{!isLogin}}">
-      <view class="login-tips">登录后开始完成任务获取积分</view>
+      <view class="login-tips">登录后开始完成任务获取碎片</view>
       <t-button theme="primary" size="large" bind:tap="goToLogin">去登录</t-button>
     </view>
 
@@ -22,7 +22,7 @@
         <view class="overview-divider"></view>
         <view class="overview-item">
           <view class="overview-value">{{todayEarnedPoints}}</view>
-          <view class="overview-label">今日获得积分</view>
+          <view class="overview-label">今日获得碎片</view>
         </view>
       </view>
 
@@ -75,7 +75,7 @@
           <view class="rule-item">1. 日常任务每日0点刷新</view>
           <view class="rule-item">2. 新手任务仅可完成一次</view>
           <view class="rule-item">3. 成长任务长期有效，可持续累计</view>
-          <view class="rule-item">4. 任务完成后积分将自动发放</view>
+          <view class="rule-item">4. 任务完成后碎片将自动发放</view>
         </view>
       </view>
     </block>

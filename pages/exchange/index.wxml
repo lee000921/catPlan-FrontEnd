@@ -8,11 +8,11 @@
     <!-- 顶部用户信息 -->
     <view class="user-info-bar">
       <view class="user-points" wx:if="{{isLogin}}">
-        <text class="points-label">我的积分</text>
+        <text class="points-label">我的碎片</text>
         <text class="points-value">{{userInfo.points || 0}}</text>
       </view>
       <view class="login-tip" wx:else>
-        <text>登录后查看我的积分</text>
+        <text>登录后查看我的碎片</text>
         <text class="login-btn" bindtap="goToLogin">去登录</text>
       </view>
       <view class="history-btn" bindtap="viewExchangeHistory">
@@ -40,14 +40,14 @@
         <view class="item-info">
           <view class="item-title">{{item.title}}</view>
           <view class="item-price-row">
-            <view class="item-points">{{item.points}}积分</view>
+            <view class="item-points">{{item.points}}碎片</view>
             <view class="item-original-price">{{item.originalPrice}}</view>
           </view>
           <view class="item-sold">已兑换{{item.sold}}件</view>
           <view class="exchange-btn {{(!isLogin || userInfo.points < item.points || item.stock <= 0) ? 'disabled' : ''}}" 
                 catchtap="handleExchange" 
                 data-id="{{item.id}}">
-            {{item.stock <= 0 ? '已抢光' : ((!isLogin || userInfo.points < item.points) ? '积分不足' : '立即兑换')}}
+            {{item.stock <= 0 ? '已抢光' : ((!isLogin || userInfo.points < item.points) ? '碎片不足' : '立即兑换')}}
           </view>
         </view>
       </view>
@@ -63,7 +63,7 @@
     <view class="exchange-rules">
       <view class="rules-title">兑换说明</view>
       <view class="rules-content">
-        <view class="rule-item">1. 积分可通过签到、完成任务等方式获取</view>
+        <view class="rule-item">1. 碎片可通过签到、完成任务等方式获取</view>
         <view class="rule-item">2. 实物奖品兑换后需填写收货地址</view>
         <view class="rule-item">3. 虚拟奖品兑换后自动发放至账户</view>
         <view class="rule-item">4. 兑换记录可在"兑换记录"中查看</view>

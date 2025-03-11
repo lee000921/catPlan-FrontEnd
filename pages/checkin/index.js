@@ -12,13 +12,13 @@ Page({
     currentYear: new Date().getFullYear(),
     calendarDays: [],
     rewards: [
-      { day: 1, points: 5, status: 'waiting' },
-      { day: 2, points: 10, status: 'waiting' },
-      { day: 3, points: 15, status: 'waiting' },
-      { day: 5, points: 20, status: 'waiting' },
-      { day: 7, points: 30, status: 'waiting' },
-      { day: 15, points: 50, status: 'waiting' },
-      { day: 30, points: 100, status: 'waiting' }
+      { day: 1, points: 1, status: 'waiting' },
+      { day: 3, points: 1, status: 'waiting' },
+      { day: 5, points: 1, status: 'waiting' },
+      { day: 7, points: 2, status: 'waiting' },
+      { day: 10, points: 2, status: 'waiting' },
+      { day: 15, points: 3, status: 'waiting' },
+      { day: 30, points: 5, status: 'waiting' }
     ],
     loading: true,
     checkInAnimation: false
@@ -30,6 +30,11 @@ Page({
   },
 
   onShow: function() {
+    if (app.globalData.isLogin !== this.data.isLogin) {
+      this.setData({
+        isLogin: app.globalData.isLogin
+      });
+    }
     if (this.data.isLogin) {
       this.fetchCheckInData();
     }
@@ -77,11 +82,17 @@ Page({
           app.globalData.userInfo = userData;
           wx.setStorageSync('userInfo', userData);
           
-          // 检查今日是否已签到
-          const now = new Date();
-          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-          const lastCheckinDate = userData.lastCheckinDate ? new Date(userData.lastCheckinDate) : null;
-          const todayChecked = lastCheckinDate && new Date(lastCheckinDate).getTime() === today;
+          // 检查今日是否已签到，并更新签到状态
+          const today = new Date();
+          // 将时间转换为当天0点
+          today.setHours(0, 0, 0, 0);
+          const beginTime = today.getTime();
+          // 将时间转换为当天23:59:59
+          today.setHours(23, 59, 59, 999);
+          const endTime = today.getTime();
+          const lastCheckinTime = userData.lastCheckinDate ? new Date(userData.lastCheckinDate).getTime() : 0;
+          const todayChecked = lastCheckinTime >= beginTime && lastCheckinTime <= endTime;
+          console.log('todayChecked', todayChecked);
           
           // 获取签到历史记录
           const checkinHistory = userData.checkinHistory || [];
@@ -251,7 +262,7 @@ Page({
           
           // 显示签到成功
           wx.showToast({
-            title: `签到成功 +${result.data.basePoints}积分`,
+            title: `签到成功 +${result.data.basePoints}碎片`,
             icon: 'success'
           });
           
@@ -260,7 +271,7 @@ Page({
             setTimeout(() => {
               wx.showModal({
                 title: '恭喜你',
-                content: `连续签到${result.data.milestone}天，获得额外${result.data.bonusPoints}积分奖励！`,
+                content: `连续签到${result.data.milestone}天，获得额外${result.data.bonusPoints}碎片奖励！`,
                 showCancel: false
               });
             }, 1500);

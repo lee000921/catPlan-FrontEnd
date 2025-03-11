@@ -65,22 +65,22 @@ Page({
     }
   },
 
-  // 获取积分信息
+  // 获取碎片信息
   fetchPointsInfo: function() {
     if (!this.data.userInfo) return;
     
-    // 计算本月获得的积分和即将过期的积分
+    // 计算本月获得的碎片和即将过期的碎片
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     
-    // 假设积分有效期为一年
+    // 假设碎片有效期为一年
     const expiryDate = new Date(currentYear, currentMonth + 1, 0); // 本月最后一天
     expiryDate.setFullYear(expiryDate.getFullYear() - 1); // 一年前的今天
     
-    // 模拟计算本月获得的积分和即将过期的积分
-    const thisMonth = 120; // 本月获得的积分
-    const expiring = 30;   // 即将过期的积分
+    // 模拟计算本月获得的碎片和即将过期的碎片
+    const thisMonth = 0; // 本月获得的碎片
+    const expiring = 0;   // 即将过期的碎片
     
     this.setData({
       pointsInfo: {

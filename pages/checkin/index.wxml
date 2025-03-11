@@ -7,7 +7,7 @@
   <block wx:else>
     <!-- 未登录状态 -->
     <view class="not-login" wx:if="{{!isLogin}}">
-      <view class="login-tips">登录后开始签到获取积分</view>
+      <view class="login-tips">登录后开始签到获取碎片</view>
       <t-button theme="primary" size="large" bind:tap="goToLogin">去登录</t-button>
     </view>
 
@@ -19,7 +19,7 @@
           <image class="avatar" src="{{userInfo.avatarUrl || '/assets/icons/default-avatar.png'}}"></image>
           <view class="user-details">
             <view class="nickname">{{userInfo.nickName || '猫咪用户'}}</view>
-            <view class="points">当前积分: {{userInfo.points || 0}}</view>
+            <view class="points">当前碎片: {{userInfo.points || 0}}</view>
           </view>
         </view>
         <view class="checkin-stats">
@@ -41,7 +41,7 @@
               bindanimationend="onAnimationEnd">
           <view class="button-inner">
             <view class="button-text">{{todayChecked ? '已签到' : '签到'}}</view>
-            <view class="button-subtext">{{todayChecked ? '明天再来' : '+5积分'}}</view>
+            <view class="button-subtext">{{todayChecked ? '明天再来' : '+5碎片'}}</view>
           </view>
         </view>
       </view>
@@ -82,9 +82,9 @@
       <view class="rules-container">
         <view class="rules-title">签到规则</view>
         <view class="rules-content">
-          <view class="rule-item">1. 每日签到可获得5积分</view>
+          <view class="rule-item">1. 每日签到可获得5碎片</view>
           <view class="rule-item">2. 连续签到可获得额外奖励</view>
-          <view class="rule-item">3. 积分可在"兑换"页面兑换礼品</view>
+          <view class="rule-item">3. 碎片可在"兑换"页面兑换礼品</view>
           <view class="rule-item">4. 每日0点重置签到状态</view>
         </view>
       </view>

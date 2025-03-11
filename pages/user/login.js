@@ -1,4 +1,4 @@
-// pages/user/login.js - 本地模拟登录版本
+// pages/user/login.js
 const app = getApp();
 
 Page({
@@ -11,73 +11,14 @@ Page({
     console.log('登录页面加载');
     // 检查是否已经登录
     const userInfo = wx.getStorageSync('userInfo');
-    if (userInfo) {
+    if (userInfo && app.globalData.isLogin) {
       console.log('用户已登录，返回上一页');
       this.navigateBack();
     }
   },
 
-  // 处理用户信息授权
-  handleUserProfile: function() {
-    console.log('点击获取用户信息按钮');
-    if (!this.data.agreePrivacy) {
-      wx.showToast({
-        title: '请先同意隐私协议',
-        icon: 'none'
-      });
-      return;
-    }
-
-    this.setData({ isLoading: true });
-
-    // 获取用户信息
-    wx.getUserProfile({
-      desc: '用于完善用户资料',
-      success: (res) => {
-        console.log('获取用户信息成功', res);
-        // 创建模拟用户数据
-        const userInfo = {
-          ...res.userInfo,
-          userId: 'local_' + Math.floor(Math.random() * 10000),
-          points: 100,
-          level: 1,
-          checkinDays: 0,
-          consecutiveCheckinDays: 0,
-          lastCheckinDate: null,
-          registerTime: new Date(),
-          tasks: {
-            daily: [],
-            newbie: [],
-            growth: []
-          },
-          exchanges: []
-        };
-        
-        // 保存到本地存储
-        wx.setStorageSync('userInfo', userInfo);
-        
-        // 更新全局数据
-        app.globalData.userInfo = userInfo;
-        app.globalData.isLogin = true;
-        
-        wx.showToast({
-          title: '登录成功',
-          icon: 'success',
-          success: () => {
-            setTimeout(() => {
-              this.navigateBack();
-            }, 1500);
-          }
-        });
-      },
-      fail: (err) => {
-        console.error('获取用户信息失败', err);
-        this.loginWithTempUserInfo(); // 失败时使用临时用户信息
-      },
-      complete: () => {
-        this.setData({ isLoading: false });
-      }
-    });
+  onunload: function() {
+    console.log('登录页面卸载');
   },
 
   // 微信一键登录
@@ -93,34 +34,111 @@ Page({
 
     this.setData({ isLoading: true });
 
-    // 使用临时用户信息直接登录
-    this.loginWithTempUserInfo();
+    // 调用微信登录
+    wx.login({
+      success: (res) => {
+        if (res.code) {
+          // 获取到登录code，调用云函数登录
+          wx.cloud.callFunction({
+            name: 'login',
+            data: { code: res.code },
+            success: (result) => {
+              console.log('云函数登录成功', result);
+              if (result.result && result.result.data.openId) {
+                // 获取用户信息
+                console.log('获取用户信息', result.result.data.openId);
+                this.getUserInfoFromCloud(result.result.data.openId);
+              } else {
+                wx.showToast({
+                  title: '登录失败，请重试',
+                  icon: 'none'
+                });
+                this.setData({ isLoading: false });
+              }
+            },
+            fail: (err) => {
+              console.error('云函数调用失败', err);
+              wx.showToast({
+                title: '登录失败，请重试',
+                icon: 'none'
+              });
+              this.setData({ isLoading: false });
+            }
+          });
+        } else {
+          console.error('wx.login 失败', res);
+          wx.showToast({
+            title: '登录失败，请重试',
+            icon: 'none'
+          });
+          this.setData({ isLoading: false });
+        }
+      },
+      fail: (err) => {
+        console.error('wx.login 调用失败', err);
+        wx.showToast({
+          title: '登录失败，请重试',
+          icon: 'none'
+        });
+        this.setData({ isLoading: false });
+      }
+    });
   },
 
-  // 使用临时用户信息登录
-  loginWithTempUserInfo: function() {
-    console.log('使用临时用户信息登录');
-    
-    // 创建临时用户数据
-    const userInfo = {
-      nickName: '微信用户',
-      avatarUrl: '/assets/icons/default-avatar.png',
-      gender: 0,
-      userId: 'local_' + Math.floor(Math.random() * 10000),
-      points: 100,
-      level: 1,
-      checkinDays: 0,
-      consecutiveCheckinDays: 0,
-      lastCheckinDate: null,
-      registerTime: new Date(),
-      tasks: {
-        daily: [],
-        newbie: [],
-        growth: []
+  // 从云端获取用户信息
+  getUserInfoFromCloud: function(openId) {
+    console.log('从云端获取用户信息', openId);
+    wx.cloud.callFunction({
+      name: 'getUserInfo',
+      data: { openId },
+      success: (res) => {
+        console.log('获取云端用户信息成功', res);
+        console.log('用户信息', res.result.data);
+        if (res.result && res.result.data) {
+          // 用户已存在，直接登录
+          const userInfo = res.result.data;
+          this.saveUserInfoAndNavigate(userInfo);
+        } else {
+          // 用户不存在
+          console.log('获取用户信息失败', openId);
+          return;
+      }},
+      fail: (err) => {
+        console.error('获取云端用户信息失败', err);
+        wx.showToast({
+          title: '登录失败，请重试',
+          icon: 'none'
+        });
+        this.setData({ isLoading: false });
+      }
+    });
+  },
+
+  // 在云端创建用户
+  createUserInCloud: function(userInfo) {
+    wx.cloud.callFunction({
+      name: 'updateUserInfo',
+      data: {
+        userInfo,
+        isNew: true
       },
-      exchanges: []
-    };
-    
+      success: (res) => {
+        console.log('创建用户成功', res);
+        this.saveUserInfoAndNavigate(userInfo);
+      },
+      fail: (err) => {
+        console.error('创建用户失败', err);
+        wx.showToast({
+          title: '创建用户失败，请重试',
+          icon: 'none'
+        });
+        this.setData({ isLoading: false });
+      }
+    });
+  },
+
+  // 保存用户信息并导航
+  saveUserInfoAndNavigate: function(userInfo) {
     // 保存到本地存储
     wx.setStorageSync('userInfo', userInfo);
     
@@ -129,7 +147,7 @@ Page({
     app.globalData.isLogin = true;
     
     wx.showToast({
-      title: '登录成功',
+      title: '欢迎猫咪大王！',
       icon: 'success',
       success: () => {
         setTimeout(() => {
@@ -139,21 +157,6 @@ Page({
     });
     
     this.setData({ isLoading: false });
-  },
-
-  // 手机号登录
-  handlePhoneLogin: function() {
-    console.log('点击手机号登录按钮');
-    if (!this.data.agreePrivacy) {
-      wx.showToast({
-        title: '请先同意隐私协议',
-        icon: 'none'
-      });
-      return;
-    }
-
-    // 由于手机号登录需要企业认证小程序，这里直接使用临时用户信息登录
-    this.loginWithTempUserInfo();
   },
 
   // 切换隐私协议同意状态
@@ -179,19 +182,22 @@ Page({
     console.log('查看用户协议');
     wx.showModal({
       title: '用户协议',
-      content: '欢迎使用猫咪计划。使用本服务即表示您同意遵守我们的服务条款，包括但不限于积分规则、兑换政策等。',
+      content: '欢迎使用猫咪计划。使用本服务即表示您同意遵守我们的服务条款，包括但不限于碎片规则、兑换政策等。',
       showCancel: false
     });
   },
-
   // 返回上一页
   navigateBack: function() {
     const pages = getCurrentPages();
+    console.log('当前页面栈:', pages);
     if (pages.length > 1) {
+      app.globalData.isLogin = true;
       wx.navigateBack();
+      const curPage = pages[pages.length - 2];
+      curPage.setData({ isLogin: app.globalData.isLogin });
     } else {
       wx.switchTab({
-        url: '/pages/user/index'
+        url: '/pages/checkin/index'
       });
     }
   }
