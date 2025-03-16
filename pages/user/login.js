@@ -97,7 +97,22 @@ Page({
         if (res.result && res.result.data) {
           // 用户已存在，直接登录
           const userInfo = res.result.data;
-          this.saveUserInfoAndNavigate(userInfo);
+          
+          // 检查是否是新用户
+          if (userInfo.isNewUser) {
+            // 更新用户标记，避免下次登录再次显示新用户奖励
+            wx.cloud.callFunction({
+              name: 'updateUserInfo',
+              data: {
+                isNewUser: false
+              }
+            });
+            
+            // 显示新用户欢迎奖励
+            this.showNewUserReward(userInfo);
+          } else {
+            this.saveUserInfoAndNavigate(userInfo);
+          }
         } else {
           // 用户不存在
           console.log('获取用户信息失败', openId);
@@ -110,6 +125,18 @@ Page({
           icon: 'none'
         });
         this.setData({ isLoading: false });
+      }
+    });
+  },
+
+  // 显示新用户欢迎奖励
+  showNewUserReward: function(userInfo) {
+    wx.showModal({
+      title: '欢迎加入猫咪计划！',
+      content: '恭喜您获得新用户奖励：52碎片！',
+      showCancel: false,
+      success: () => {
+        this.saveUserInfoAndNavigate(userInfo);
       }
     });
   },

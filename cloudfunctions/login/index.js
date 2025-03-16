@@ -50,14 +50,15 @@ exports.main = async (event, context) => {
       // 设置新用户的初始数据
       const newUser = {
         ...userData,
-        points: 0, // 初始碎片
+        points: 0, // 初始碎片为0
         level: 1,
         checkinDays: 0,
         consecutiveCheckinDays: 0,
         lastCheckinDate: null,
         registerTime: now,
         tasks: [],
-        exchanges: [] // 兑换记录
+        exchanges: [], // 兑换记录
+        isNewUser: true // 标记为新用户，前端会根据这个标记显示欢迎奖励
       }
       
       console.log('新用户数据：', newUser);
@@ -69,10 +70,32 @@ exports.main = async (event, context) => {
       
       console.log('创建用户结果：', result);
       
+      // 给新用户增加52碎片作为欢迎奖励
+      await userCollection.doc(result._id).update({
+        data: {
+          points: 52
+        }
+      });
+      
+      // 创建首次登录奖励记录
+      await db.collection('pointsRecords').add({
+        data: {
+          openId: openid,
+          points: 52,
+          type: 'welcome',
+          description: '新用户首次登录奖励',
+          createTime: now
+        }
+      });
+      
+      // 更新返回的用户数据，包含奖励后的碎片数
+      newUser.points = 52;
+      
       return {
         success: true,
         message: '用户创建成功',
-        data: newUser
+        data: newUser,
+        isNewUser: true // 标记为新用户，前端会显示欢迎奖励提示
       }
     } 
     // 用户已存在，更新用户信息
@@ -109,7 +132,8 @@ exports.main = async (event, context) => {
       return {
         success: true,
         message: '用户登录成功',
-        data: updateData
+        data: updateData,
+        isNewUser: false // 不是新用户
       }
     }
   } catch (error) {
