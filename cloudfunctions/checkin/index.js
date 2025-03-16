@@ -45,62 +45,23 @@ exports.main = async (event, context) => {
         message: '今日已签到',
         data: {
           checkinDays: user.checkinDays,
-          consecutiveCheckinDays: user.consecutiveCheckinDays,
           points: user.points
         }
       }
     }
     
-    // 计算连续签到天数
-    let consecutiveCheckinDays = user.consecutiveCheckinDays || 0
-    const lastCheckinDate = user.lastCheckinDate ? new Date(user.lastCheckinDate) : null
-    
-    // 如果上次签到是昨天，连续签到天数+1，否则重置为1
-    if (lastCheckinDate) {
-      const yesterday = new Date(now)
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate()).getTime()
-      
-      if (new Date(lastCheckinDate).getTime() === yesterdayDate) {
-        consecutiveCheckinDays += 1
-      } else {
-        consecutiveCheckinDays = 1
-      }
-    } else {
-      consecutiveCheckinDays = 1
-    }
-    
-    // 计算基础碎片和额外奖励
-    let basePoints = 5 // 基础签到碎片
-    let bonusPoints = 0 // 连续签到奖励碎片
-    
-    // 连续签到奖励规则
-    const milestones = [
-      { day: 10, points: 2 },
-      { day: 15, points: 3 },
-      { day: 30, points: 5 },
-      { day: 7, points: 2 },
-      { day: 5, points: 1 },
-      { day: 3, points: 1 },
-      { day: 1, points: 1 }
-    ]
-    
-    // 检查是否达到里程碑
-    const milestone = milestones.find(m => m.day === consecutiveCheckinDays)
-    if (milestone) {
-      bonusPoints = milestone.points
-    }
+    // 计算基础碎片
+    const basePoints = 5 // 基础签到碎片
     
     // 更新用户签到信息和碎片
-    const totalPoints = user.points + basePoints + bonusPoints
+    const totalPoints = user.points + basePoints
     const checkinDays = (user.checkinDays || 0) + 1
     
     // 记录签到历史
     const checkinHistory = user.checkinHistory || []
     checkinHistory.push({
       date: now,
-      points: basePoints + bonusPoints,
-      consecutiveCheckinDays: consecutiveCheckinDays
+      points: basePoints
     })
     
     // 限制历史记录数量，只保留最近100条
@@ -108,11 +69,10 @@ exports.main = async (event, context) => {
       checkinHistory.shift()
     }
     
-    // 更新用户数据
+    // 更新用户数据 - 移除了连续签到天数字段
     await userCollection.doc(user._id).update({
       data: {
         checkinDays: checkinDays,
-        consecutiveCheckinDays: consecutiveCheckinDays,
         lastCheckinDate: now,
         points: totalPoints,
         checkinHistory: checkinHistory
@@ -127,11 +87,8 @@ exports.main = async (event, context) => {
       message: '签到成功',
       data: {
         checkinDays: checkinDays,
-        consecutiveCheckinDays: consecutiveCheckinDays,
         points: totalPoints,
         basePoints: basePoints,
-        bonusPoints: bonusPoints,
-        milestone: milestone ? milestone.day : null,
         userInfo: updatedUser.data
       }
     }

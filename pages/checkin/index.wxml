@@ -27,10 +27,6 @@
             <view class="stat-value">{{checkInDays}}</view>
             <view class="stat-label">累计签到</view>
           </view>
-          <view class="stat-item">
-            <view class="stat-value">{{consecutiveDays}}</view>
-            <view class="stat-label">连续签到</view>
-          </view>
         </view>
       </view>
 
@@ -63,29 +59,13 @@
         </view>
       </view>
 
-      <!-- 连续签到奖励 -->
-      <view class="rewards-container">
-        <view class="rewards-title">连续签到奖励</view>
-        <view class="rewards-list">
-          <view class="reward-item {{item.status}}" wx:for="{{rewards}}" wx:key="day">
-            <view class="reward-day">{{item.day}}天</view>
-            <view class="reward-points">+{{item.points}}</view>
-            <view class="reward-status">
-              <view class="status-icon completed" wx:if="{{item.status === 'completed'}}">✓</view>
-              <view class="status-icon current" wx:elif="{{item.status === 'current'}}">今</view>
-            </view>
-          </view>
-        </view>
-      </view>
-
       <!-- 签到规则 -->
       <view class="rules-container">
         <view class="rules-title">签到规则</view>
         <view class="rules-content">
-          <view class="rule-item">1. 每日签到可获得1碎片</view>
-          <view class="rule-item">2. 连续签到可获得额外奖励</view>
-          <view class="rule-item">3. 碎片可在"兑换"页面兑换礼品</view>
-          <view class="rule-item">4. 每日0点重置签到状态</view>
+          <view class="rule-item">1. 每日签到可获得5碎片</view>
+          <view class="rule-item">2. 碎片可在"兑换"页面兑换礼品</view>
+          <view class="rule-item">3. 每日0点重置签到状态</view>
         </view>
       </view>
     </block>

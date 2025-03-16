@@ -7,19 +7,9 @@ Page({
     isLogin: false,
     todayChecked: false,
     checkInDays: 0,
-    consecutiveDays: 0,
     currentMonth: new Date().getMonth() + 1,
     currentYear: new Date().getFullYear(),
     calendarDays: [],
-    rewards: [
-      { day: 1, points: 1, status: 'waiting' },
-      { day: 3, points: 1, status: 'waiting' },
-      { day: 5, points: 1, status: 'waiting' },
-      { day: 7, points: 2, status: 'waiting' },
-      { day: 10, points: 2, status: 'waiting' },
-      { day: 15, points: 3, status: 'waiting' },
-      { day: 30, points: 5, status: 'waiting' }
-    ],
     loading: true,
     checkInAnimation: false
   },
@@ -117,26 +107,11 @@ Page({
             return day;
           });
           
-          // 更新奖励状态
-          const consecutiveDays = userData.consecutiveCheckinDays || 0;
-          const rewards = this.data.rewards.map(reward => {
-            if (consecutiveDays >= reward.day) {
-              reward.status = 'completed';
-            } else if (consecutiveDays + 1 === reward.day) {
-              reward.status = 'current';
-            } else {
-              reward.status = 'waiting';
-            }
-            return reward;
-          });
-          
           this.setData({
             userInfo: userData,
             checkInDays: userData.checkinDays || 0,
-            consecutiveDays: consecutiveDays,
             todayChecked: todayChecked,
             calendarDays,
-            rewards,
             loading: false
           });
         } else {
@@ -231,19 +206,6 @@ Page({
             return day;
           });
           
-          // 更新奖励状态
-          const consecutiveDays = result.data.consecutiveCheckinDays;
-          const rewards = this.data.rewards.map(reward => {
-            if (consecutiveDays >= reward.day) {
-              reward.status = 'completed';
-            } else if (consecutiveDays + 1 === reward.day) {
-              reward.status = 'current';
-            } else {
-              reward.status = 'waiting';
-            }
-            return reward;
-          });
-          
           // 更新用户信息
           if (result.data.userInfo) {
             app.globalData.userInfo = result.data.userInfo;
@@ -252,10 +214,8 @@ Page({
           
           this.setData({
             todayChecked: true,
-            consecutiveDays: result.data.consecutiveCheckinDays,
             checkInDays: result.data.checkinDays,
             calendarDays,
-            rewards,
             checkInAnimation: false,
             userInfo: result.data.userInfo || this.data.userInfo
           });
@@ -265,17 +225,6 @@ Page({
             title: `签到成功 +${result.data.basePoints}碎片`,
             icon: 'success'
           });
-          
-          // 检查是否达到里程碑
-          if (result.data.milestone && result.data.bonusPoints > 0) {
-            setTimeout(() => {
-              wx.showModal({
-                title: '恭喜你',
-                content: `连续签到${result.data.milestone}天，获得额外${result.data.bonusPoints}碎片奖励！`,
-                showCancel: false
-              });
-            }, 1500);
-          }
         } else {
           this.setData({ checkInAnimation: false });
           wx.showToast({
