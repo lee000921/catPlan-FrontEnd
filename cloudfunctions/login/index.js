@@ -73,7 +73,7 @@ exports.main = async (event, context) => {
       // 给新用户增加52碎片作为欢迎奖励
       await userCollection.doc(result._id).update({
         data: {
-          points: 52
+          points: 520
         }
       });
       
@@ -81,7 +81,7 @@ exports.main = async (event, context) => {
       await db.collection('pointsRecords').add({
         data: {
           openId: openid,
-          points: 52,
+          points: 520,
           type: 'welcome',
           description: '新用户首次登录奖励',
           createTime: now
@@ -117,7 +117,8 @@ exports.main = async (event, context) => {
           newbie: [],
           growth: []
         },
-        exchanges: user.exchanges || []
+        exchanges: user.exchanges || [],
+        isNewUser: false // 明确设置为非新用户，修复重复显示新用户奖励的问题
       }
       
       console.log('更新用户数据：', updateData);

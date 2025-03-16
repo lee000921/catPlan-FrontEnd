@@ -133,7 +133,7 @@ Page({
   showNewUserReward: function(userInfo) {
     wx.showModal({
       title: '欢迎加入猫咪计划！',
-      content: '恭喜您获得新用户奖励：52碎片！',
+      content: '恭喜您获得新用户奖励：520碎片！',
       showCancel: false,
       success: () => {
         this.saveUserInfoAndNavigate(userInfo);
