@@ -223,7 +223,15 @@ Page({
           // 显示签到成功
           wx.showToast({
             title: `签到成功 +${result.data.basePoints}碎片`,
-            icon: 'success'
+            icon: 'success',
+            success: () => {
+              // 签到成功后，跳转到抽奖页面
+              setTimeout(() => {
+                wx.navigateTo({
+                  url: '/pages/lottery/index?fromCheckin=true'
+                });
+              }, 1000);
+            }
           });
         } else {
           this.setData({ checkInAnimation: false });
