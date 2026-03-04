@@ -4,7 +4,11 @@
     "pages/tasks/tasks",
     "pages/task-submit/task-submit",
     "pages/task-detail/task-detail",
-    "pages/signin/signin"
+    "pages/signin/signin",
+    "pages/shop/list/list",
+    "pages/shop/detail/detail",
+    "pages/shop/exchange/exchange",
+    "pages/shop/history/history"
   ],
   "window": {
     "backgroundTextStyle": "light",
