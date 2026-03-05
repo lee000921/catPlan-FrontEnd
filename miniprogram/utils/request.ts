@@ -183,7 +183,7 @@ export function del<T = any>(
  */
 function getApiBaseUrl(): string {
   // 可根据环境变量或条件编译来选择不同的 API 服务器
-  return 'https://your-domain.com'; // 正式环境
+  return 'http://39.104.84.63:3000'; // 正式环境
   // return 'http://localhost:3000'; // 开发环境
 }
 

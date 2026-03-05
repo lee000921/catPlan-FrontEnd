@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "deploy": "node deploy.js",
+    "deploy:preview": "node deploy.js --preview",
+    "deploy:help": "node deploy.js --help"
   },
   "keywords": [],
   "author": "",
   "license": "",
-  "dependencies": {
-  },
   "devDependencies": {
-    "miniprogram-api-typings": "^2.8.3-1"
+    "miniprogram-api-typings": "^2.8.3-1",
+    "miniprogram-ci": "^2.1.26",
+    "typescript": "^5.9.3"
   }
 }
