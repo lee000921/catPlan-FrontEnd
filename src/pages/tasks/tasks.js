@@ -8,6 +8,8 @@ Page({
     userInfo: null,
     openid: '',
     userType: 'A', // A: 申请者, B: 审批者, AB: 双重角色
+    userTypeLabel: '申请者',
+    points: 0,
     fabExpanded: false,
     showMyApprovals: false // 是否显示我审批过的任务（仅审批者）
   },
@@ -33,10 +35,15 @@ Page({
   onShow() {
     // 页面显示时刷新用户类型
     const userType = wx.getStorageSync('catplan_user_type') || 'A';
-    this.setData({ userType: userType });
-    
+    const userTypeMap = { 'A': '申请者', 'B': '审批者', 'AB': '双重角色' };
+    this.setData({
+      userType: userType,
+      userTypeLabel: userTypeMap[userType] || '申请者'
+    });
+
     // 页面显示时刷新数据
     this.loadTasks();
+    this.loadUserPoints();
   },
 
   // 加载任务列表
@@ -52,7 +59,7 @@ Page({
       openid: this.data.openid,
       user_type: this.data.userType
     };
-    
+
     // 如果是审批者且切换到"我的审批"视图，添加参数
     if ((this.data.userType === 'B' || (this.data.userType && this.data.userType.includes('B'))) && this.data.showMyApprovals) {
       requestData.my_approvals = 'true';
@@ -72,7 +79,7 @@ Page({
             approved: tasks.filter(t => t.status === 'approved').length,
             completed: tasks.filter(t => t.status === 'completed').length
           };
-          this.setData({ 
+          this.setData({
             tasks: tasks,
             stats: stats
           });
@@ -93,6 +100,29 @@ Page({
       complete: () => {
         this.setData({ loading: false });
       }
+    });
+  },
+
+  // 加载用户积分
+  loadUserPoints() {
+    if (!this.data.backendBase || !this.data.openid) return;
+
+    wx.request({
+      url: `${this.data.backendBase}/api/user/profile`,
+      method: 'GET',
+      data: { openid: this.data.openid },
+      success: (res) => {
+        if (res.data) {
+          this.setData({ points: res.data.points || 0 });
+        }
+      }
+    });
+  },
+
+  // 跳转到个人中心页面
+  goToProfile() {
+    wx.navigateTo({
+      url: '/pages/profile/profile'
     });
   },
 

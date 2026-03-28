@@ -5,11 +5,12 @@
   <!-- 用户信息卡片 -->
   <view class="user-card" wx:if="{{userInfo}}">
     <view class="user-header">
-      <view class="user-avatar-section">
-        <image class="user-avatar" src="{{userInfo.avatarUrl}}"></image>
+      <view class="user-avatar-section" bindtap="goToProfile">
+        <image class="user-avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
         <view class="user-info-text">
-          <text class="user-name">{{userInfo.nickName}}</text>
-          <text class="user-role">{{userType === 'A' ? '申请者' : '审批者'}}</text>
+          <text class="user-name">{{userInfo.nickName || '未登录'}}</text>
+          <text class="user-role">{{userTypeLabel}}</text>
+          <text class="user-points">积分: {{points}}</text>
         </view>
       </view>
       <view class="user-actions">

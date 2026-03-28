@@ -1,0 +1,46 @@
+<view class="profile-container">
+  <!-- 用户信息区域 -->
+  <view class="user-section">
+    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <view class="info">
+      <text class="nickname">{{userInfo.nickName || '未设置昵称'}}</text>
+      <text class="role">角色: {{userTypeLabel}}</text>
+      <view class="points-box">
+        <text class="points-label">当前积分</text>
+        <text class="points-value">{{points}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 积分明细 -->
+  <view class="history-section">
+    <text class="section-title">积分明细</text>
+
+    <view wx:if="{{loading}}" class="loading">
+      <text>加载中...</text>
+    </view>
+
+    <view wx:elif="{{records.length === 0}}" class="empty">
+      <text>暂无积分记录</text>
+    </view>
+
+    <view wx:else class="record-list">
+      <view class="record-item" wx:for="{{records}}" wx:key="id">
+        <view class="record-left">
+          <text class="record-reason">{{item.reason}}</text>
+          <text class="record-time">{{item.created_at}}</text>
+        </view>
+        <view class="record-right">
+          <text class="record-change {{item.points_change > 0 ? 'positive' : 'negative'}}">
+            {{item.points_change > 0 ? '+' : ''}}{{item.points_change}}
+          </text>
+          <text class="record-balance">余额: {{item.balance}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">
+      <text>加载更多</text>
+    </view>
+  </view>
+</view>
