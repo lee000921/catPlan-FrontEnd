@@ -7,8 +7,7 @@ Page({
       selectedRole: 'A', // 默认选择申请者
       roleOptions: [
         { value: 'A', label: '申请者', desc: '可以创建任务、完成任务和兑换物品' },
-        { value: 'B', label: '审批者', desc: '可以审批任务和管理商城' },
-        { value: 'AB', label: '双重角色', desc: '同时拥有申请者和审批者权限' }
+        { value: 'B', label: '审批者', desc: '可以创建/审批任务，管理商城' }
       ]
     },
   
