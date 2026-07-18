@@ -1,98 +1,67 @@
-# catPlan 微信小程序
+# CatPlan 微信小程序
 
-## 📋 项目介绍
+CatPlan 的微信小程序客户端，包含微信登录、任务创建/审批/完成、周期任务、任务单、签到和积分商城。
 
-`catPlan` 是一个微信小程序项目，采用 TypeScript 开发，提供现代化的用户体验。
+## 技术结构
 
-## 🏗️ 项目结构
+- 页面逻辑目前使用 JavaScript，API 边界和会话层使用 TypeScript。
+- 微信开发者工具负责 TypeScript 编译，配置见 `project.config.json`。
+- 所有网络请求只能经 `miniprogram/utils/request.ts` 发出。
+- 所有后端接口集中在 `miniprogram/services/`。
+- 登录状态只保存在 `catplan_session`；旧缓存键会在首次读取后兼容迁移。
+- 客户端不向业务接口发送 `openid` 或角色，身份与权限由服务端 Token 决定。
 
+## 目录
+
+```text
+miniprogram/
+  app.ts                    应用入口与后端域名
+  app.json                  页面与 TabBar
+  pages/                    页面
+  services/                 按业务拆分的类型化 API
+  utils/request.ts          请求、错误和 401 处理
+  utils/session.ts          单一会话存储
+  assets/                   本地图片资源
+typings/                    微信 API 类型
+deploy.js                   miniprogram-ci 上传/预览
 ```
-catPlan-Wechat/
-├── miniprogram/              # 小程序源代码
-│   ├── app.json             # 小程序配置文件
-│   ├── app.ts               # 小程序入口文件
-│   ├── app.wxss             # 小程序全局样式
-│   ├── pages/               # 页面目录
-│   │   ├── index/           # 首页
-│   │   └── logs/            # 日志页面
-│   ├── services/            # API 服务层
-│   └── utils/               # 工具函数
-├── typings/                 # TypeScript 类型定义
-├── package.json             # 项目依赖配置
-├── project.config.json      # 微信开发者工具配置
-├── tsconfig.json            # TypeScript 配置
-├── DEPLOY.md                # 部署指南
-└── DEVELOPMENT.md           # 开发指南
-```
 
-## 🛠️ 技术栈
+## 开发
 
-- **语言**: TypeScript
-- **框架**: 微信小程序
-- **编译工具**: 微信开发者工具
-- **组件框架**: glass-easel
-- **目标环境**: ES2020
-
-## 🚀 快速开始
-
-### 环境要求
-- 微信开发者工具 (最新版本)
-- Node.js 14.x 或更高版本
-
-### 安装步骤
+要求 Node.js 18+ 和微信开发者工具。
 
 ```bash
-# 克隆项目
-git clone <repository-url>
-cd catPlan-Wechat
-
-# 安装依赖
 npm install
-
-# 打开微信开发者工具
-# 选择项目目录，工具会自动编译 TypeScript
+npm run check
 ```
 
-### 配置说明
+然后用微信开发者工具导入仓库根目录。后端地址在 `miniprogram/app.ts` 的 `backendBase` 中配置；正式域名还需要加入微信公众平台的 request 合法域名。
 
-#### project.config.json
-- **AppID**: `wx557d4f3490a318fe` (请替换为你的小程序 AppID)
-- **小程序根目录**: `miniprogram/`
-- TypeScript 编译支持已启用
+新增接口时：
 
-#### tsconfig.json
-- 严格模式已启用
-- 目标：ES2020
-- 模块：CommonJS
+1. 在 `services/` 中定义请求与响应类型；
+2. 页面调用 service，不直接调用 `wx.request`；
+3. 不从页面传身份字段；
+4. 用 `getErrorMessage` 统一展示错误；
+5. 提交前运行 `npm run check`。
 
-## 📝 主要功能
+## 登录与角色
 
-- 微信授权登录
-- 本地数据存储
-- HTTP 请求统一封装
-- API 服务层封装
+登录页只请求微信资料和登录 code。服务端返回当前账号的 `A`、`B` 或 `AB` 角色，客户端只据此控制界面展示，真正权限仍由服务端校验。
 
-## 📦 部署
+## 上传
 
-详见 [DEPLOY.md](./DEPLOY.md)
+将微信“代码上传密钥”保存为仓库根目录的 `private.key`。该文件已被 Git 忽略。
 
-## 🔧 开发
+```bash
+npm run deploy:preview
+npm run deploy -- --version 1.2.3 --desc "发布说明"
+```
 
-详见 [DEVELOPMENT.md](./DEVELOPMENT.md)
+上传前请确认：
 
-## 📚 相关文档
-
-- [微信小程序官方文档](https://developers.weixin.qq.com/miniprogram/dev/framework/)
-- [TypeScript 文档](https://www.typescriptlang.org/)
-
-## 📄 许可证
-
-暂未指定
-
-## 👤 作者
-
-Repository Owner: lee000921
-
----
-
-**更新日期**: 2026-03-04
+- `project.config.json` 中 AppID 正确；
+- `private.key` 已轮换且未提交到版本库；
+- `npm run check` 通过；
+- 后端已完成数据库备份和迁移；
+- 真机验证登录、任务、签到和兑换主流程。

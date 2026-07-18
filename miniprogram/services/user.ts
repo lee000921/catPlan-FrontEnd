@@ -1,65 +1,31 @@
-/**
- * 用户相关 API 服务
- * 示例：如何组织和调用 API
- */
+import { get, post } from '../utils/request';
+import type { UserRole } from '../utils/session';
 
-import { post, get } from '../utils/request';
-
-interface LoginResponse {
+export interface LoginResponse {
+  ok: true;
+  openid: string;
   token: string;
-  userInfo: {
-    id: string;
-    nickName: string;
-    avatarUrl: string;
-  };
+  user_type: UserRole;
+  mock?: boolean;
 }
 
-interface UserInfo {
-  id: string;
-  nickName: string;
-  avatarUrl: string;
-  phone?: string;
+export interface ProfileResponse {
+  ok: true;
+  user: WechatMiniprogram.UserInfo | null;
+  points?: number;
+  user_type?: UserRole;
 }
 
-/**
- * 用户登录
- * @param code 微信授权码
- * @returns token 和用户信息
- */
-export async function loginUser(code: string): Promise<LoginResponse> {
-  return post<LoginResponse>('/api/user/login', { code });
+export function login(code: string): Promise<LoginResponse> {
+  return post<LoginResponse>('/api/auth/login', { code }, false);
 }
 
-/**
- * 获取用户信息
- * @returns 当前用户信息
- */
-export async function getUserInfo(): Promise<UserInfo> {
-  return get<UserInfo>('/api/user/info');
+export function getProfile(): Promise<ProfileResponse> {
+  return get<ProfileResponse>('/api/user/profile');
 }
 
-/**
- * 更新用户信息
- * @param userInfo 更新的用户信息
- * @returns 更新后的用户信息
- */
-export async function updateUserInfo(
-  userInfo: Partial<UserInfo>
-): Promise<UserInfo> {
-  return post<UserInfo>('/api/user/update', userInfo);
-}
-
-/**
- * 获取用户列表（示例）
- * @param page 页码
- * @param limit 每页数量
- * @returns 用户列表
- */
-export async function getUserList(
-  page: number = 1,
-  limit: number = 10
-): Promise<{ users: UserInfo[]; total: number }> {
-  return get('/api/user/list', {
-    data: { page, limit },
-  });
+export function updateProfile(
+  profile: WechatMiniprogram.UserInfo
+): Promise<ProfileResponse> {
+  return post<ProfileResponse>('/api/user/profile', { profile });
 }

@@ -1,8 +1,29 @@
-/* 商城兑换页样式 - 蓝色系设计 */
+/* 商城兑换页样式 - 小黑猫可爱风 */
 .container {
-  padding: 24rpx;
-  padding-bottom: 180rpx;
-  background: #f0f5ff;
+  min-height: 100vh;
+  padding: 32rpx;
+  padding-bottom: 200rpx;
+  background: linear-gradient(180deg, #fffaf5 0%, #fefcff 40%, #f5fbff 100%);
+  box-sizing: border-box;
+}
+
+.page-header {
+  text-align: center;
+  padding-bottom: 24rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #262626;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #8c8c8c;
 }
 
 /* 商品信息卡片 */
@@ -11,7 +32,7 @@
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 8rpx 28rpx rgba(0, 0, 0, 0.10);
 }
 
 .product-header {
@@ -65,7 +86,7 @@
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 6rpx 22rpx rgba(0, 0, 0, 0.08);
 }
 
 .section-title {
@@ -85,11 +106,11 @@
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f0f5ff, #e6f7ff);
+  background: linear-gradient(135deg, #fdfbff, #f0fffb);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2rpx solid #1890ff;
+  border: 2rpx solid #5cdbd3;
 }
 
 .quantity-btn:active {
@@ -98,7 +119,7 @@
 
 .btn-text {
   font-size: 40rpx;
-  color: #1890ff;
+  color: #5cdbd3;
   font-weight: 600;
 }
 
@@ -133,7 +154,7 @@
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 6rpx 22rpx rgba(0, 0, 0, 0.08);
 }
 
 .detail-row {
@@ -178,7 +199,7 @@
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 6rpx 22rpx rgba(0, 0, 0, 0.08);
 }
 
 .points-row {
@@ -216,7 +237,7 @@
 
 /* 兑换说明 */
 .notice {
-  background: linear-gradient(135deg, #fff7e6, #fffbf0);
+  background: linear-gradient(135deg, #fffbe6, #fff7e6);
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
@@ -234,7 +255,7 @@
 }
 
 .notice-icon {
-  color: #1890ff;
+  color: #5cdbd3;
   margin-right: 12rpx;
   font-size: 28rpx;
 }
@@ -257,7 +278,7 @@
   justify-content: space-between;
   padding: 20rpx 30rpx;
   background-color: white;
-  box-shadow: 0 -2rpx 12rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
   z-index: 100;
 }
 
@@ -285,13 +306,13 @@
 }
 
 .confirm-btn {
-  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  background: linear-gradient(135deg, #95de64, #5cdbd3);
   color: white;
   padding: 28rpx 60rpx;
   border-radius: 48rpx;
   font-size: 32rpx;
   font-weight: 600;
-  box-shadow: 0 8rpx 24rpx rgba(24, 144, 255, 0.3);
+  box-shadow: 0 10rpx 30rpx rgba(92, 219, 211, 0.40);
 }
 
 .confirm-btn:active {

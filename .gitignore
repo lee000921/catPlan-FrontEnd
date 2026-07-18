@@ -32,3 +32,5 @@ temp/
 
 # 私有配置
 project.private.config.json
+private.key
+*.key

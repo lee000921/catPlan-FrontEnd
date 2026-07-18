@@ -1,10 +1,15 @@
 <!--pages/shop/detail/detail.wxml-->
 <view class="container" wx:if="{{!loading && product}}">
+  <view class="page-header">
+    <text class="page-title">🎁 商品详情</text>
+    <text class="page-subtitle">看看小黑为你准备了什么</text>
+  </view>
+
   <!-- 商品图片 -->
   <view class="product-image-container">
     <image 
       class="product-image" 
-      src="{{product.imageUrl || '/images/default-product.png'}}" 
+      src="{{product.imageUrl || '../../../assets/cat-lxh.png'}}"
       mode="aspectFill"
     ></image>
   </view>

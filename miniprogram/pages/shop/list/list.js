@@ -1,103 +1,103 @@
-// pages/shop/list/list.js
-const app = getApp();
+const { listProducts } = require('../../../services/shop');
+const { getProfile } = require('../../../services/user');
+const { getErrorMessage } = require('../../../utils/request');
+const { getSession, hasRole, updateSession } = require('../../../utils/session');
+
+function productViewModel(product) {
+  return {
+    ...product,
+    imageUrl: product.image_url,
+    points: Number(product.price || 0),
+    stock: Number(product.stock || 0),
+  };
+}
 
 Page({
   data: {
     productList: [],
     loading: true,
-    hasMore: true,
-    page: 1,
-    pageSize: 10,
+    hasMore: false,
     userInfo: null,
-    isTypeA: false // 是否为 A 类用户（申请者）
+    userInitial: 'U',
+    points: 0,
+    isTypeA: false,
   },
 
   onLoad() {
-    this.checkUserType();
-    this.loadProductList();
+    const session = getSession();
+    this.setData({
+      userInfo: session?.userInfo || null,
+      userInitial: session?.userInfo?.nickName?.slice(0, 1) || 'U',
+      isTypeA: hasRole(session, 'A'),
+    });
+  },
+
+  onShow() {
+    this.refreshPage();
+  },
+
+  async refreshPage() {
+    await Promise.all([this.loadProductList(), this.loadProfile()]);
+  },
+
+  async loadProductList() {
+    this.setData({ loading: true });
+    try {
+      const response = await listProducts();
+      this.setData({
+        productList: (response.items || []).map(productViewModel),
+        hasMore: false,
+      });
+    } catch (error) {
+      wx.showToast({ title: getErrorMessage(error), icon: 'none' });
+    } finally {
+      this.setData({ loading: false });
+      wx.stopPullDownRefresh();
+    }
+  },
+
+  async loadProfile() {
+    try {
+      const response = await getProfile();
+      const session = getSession();
+      this.setData({
+        userInfo: response.user || session?.userInfo || null,
+        userInitial:
+          response.user?.nickName?.slice(0, 1) ||
+          session?.userInfo?.nickName?.slice(0, 1) ||
+          'U',
+        points: Number(response.points || 0),
+        isTypeA: hasRole(session, 'A'),
+      });
+      updateSession({ userInfo: response.user || null });
+    } catch (error) {
+      console.error('Unable to load shop profile', error);
+    }
   },
 
   onPullDownRefresh() {
-    this.setData({ page: 1, hasMore: true });
-    this.loadProductList();
+    this.refreshPage();
   },
 
-  onReachBottom() {
-    if (this.data.hasMore && !this.data.loading) {
-      this.loadProductList(true);
+  goToDetail(event) {
+    const id = Number(event.currentTarget.dataset.id);
+    if (Number.isInteger(id)) {
+      wx.navigateTo({ url: `/pages/shop/detail/detail?id=${id}` });
     }
   },
 
-  // 检查用户类型（基于登录时缓存的信息）
-  checkUserType() {
-    const cachedUser = wx.getStorageSync('catplan_user') || null;
-    const userType = wx.getStorageSync('catplan_user_type') || 'A';
-    this.setData({
-      userInfo: cachedUser,
-      isTypeA: typeof userType === 'string' && userType.indexOf('A') !== -1
-    });
-  },
-
-  // 加载商品列表
-  loadProductList(isLoadMore = false) {
-    this.setData({ loading: true });
-
-    wx.request({
-      url: app.globalData.backendBase + '/api/shop/products',
-      method: 'GET',
-      success: (res) => {
-        if (res.statusCode === 200 && res.data && res.data.ok) {
-          const items = res.data.items || [];
-          // 当前后端未提供分页，这里一次性加载全部商品
-          this.setData({
-            productList: items,
-            page: 1,
-            loading: false,
-            hasMore: false
-          });
-          wx.stopPullDownRefresh();
-        } else {
-          this.setData({ loading: false });
-          wx.showToast({
-            title: '加载失败',
-            icon: 'none'
-          });
-        }
-      },
-      fail: (err) => {
-        console.error('加载商品列表失败', err);
-        this.setData({ loading: false });
-        wx.stopPullDownRefresh();
-        wx.showToast({
-          title: '网络错误',
-          icon: 'none'
-        });
-      }
-    });
-  },
-
-  // 点击商品查看详情
-  goToDetail(e) {
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${id}`
-    });
-  },
-
-  // 立即兑换
-  exchangeNow(e) {
+  exchangeNow(event) {
     if (!this.data.isTypeA) {
       wx.showModal({
         title: '权限不足',
-        content: '仅 A 类用户（申请者）可以进行兑换',
-        showCancel: false
+        content: '当前账号不能兑换商品',
+        showCancel: false,
       });
       return;
     }
-
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({
-      url: `/pages/shop/exchange/exchange?id=${id}`
-    });
-  }
-})
+    const id = Number(event.currentTarget.dataset.id);
+    if (Number.isInteger(id)) {
+      wx.navigateTo({ url: `/pages/shop/exchange/exchange?id=${id}` });
+    }
+  },
+});

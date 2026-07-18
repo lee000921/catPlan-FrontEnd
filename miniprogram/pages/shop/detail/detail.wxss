@@ -1,7 +1,29 @@
-/* 商城详情页样式 - 蓝色系设计 */
+/* 商城详情页样式 - 小黑猫可爱风 */
 .container {
-  padding-bottom: 140rpx;
-  background: #f0f5ff;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fffaf5 0%, #fefcff 40%, #f5fbff 100%);
+  padding: 32rpx;
+  padding-bottom: 200rpx;
+  box-sizing: border-box;
+}
+
+.page-header {
+  text-align: center;
+  padding-bottom: 24rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #262626;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #8c8c8c;
 }
 
 /* 商品图片 */
@@ -24,7 +46,7 @@
   padding: 32rpx;
   position: relative;
   z-index: 10;
-  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 8rpx 28rpx rgba(0, 0, 0, 0.10);
 }
 
 .product-info::before {
@@ -34,7 +56,7 @@
   left: 0;
   right: 0;
   height: 6rpx;
-  background: linear-gradient(90deg, #1890ff, #40a9ff);
+  background: linear-gradient(90deg, #95de64, #5cdbd3, #b37feb);
   border-radius: 24rpx 24rpx 0 0;
 }
 
@@ -121,7 +143,7 @@
   background: #fff;
   border-radius: 24rpx;
   padding: 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 6rpx 22rpx rgba(0, 0, 0, 0.08);
 }
 
 .section-title {
@@ -144,7 +166,7 @@
   background: #fff;
   border-radius: 24rpx;
   padding: 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 6rpx 22rpx rgba(0, 0, 0, 0.08);
 }
 
 .rule-item {
@@ -171,7 +193,7 @@
   background: #fff;
   border-radius: 24rpx;
   padding: 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.08);
+  box-shadow: 0 6rpx 22rpx rgba(0, 0, 0, 0.08);
 }
 
 .points-row {
@@ -248,14 +270,14 @@
 
 .exchange-btn {
   flex: 1;
-  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  background: linear-gradient(135deg, #95de64, #5cdbd3);
   color: white;
   text-align: center;
   padding: 28rpx 0;
   border-radius: 48rpx;
   font-size: 32rpx;
   font-weight: 600;
-  box-shadow: 0 8rpx 24rpx rgba(24, 144, 255, 0.3);
+  box-shadow: 0 10rpx 30rpx rgba(92, 219, 211, 0.40);
 }
 
 .exchange-btn:active {

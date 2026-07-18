@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "catPlan 微信小程序",
   "scripts": {
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck",
     "deploy": "node deploy.js",
     "deploy:preview": "node deploy.js --preview"
   },

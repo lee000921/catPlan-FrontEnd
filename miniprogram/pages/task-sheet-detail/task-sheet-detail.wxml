@@ -6,6 +6,11 @@
 
   <!-- 任务单详情 -->
   <view wx:if="{{!loading && taskSheet}}" class="task-sheet-detail">
+    <view class="page-header">
+      <text class="page-title">📋 任务单详情</text>
+      <text class="page-subtitle">查看今日任务清单与完成进度</text>
+    </view>
+
     <!-- 头部卡片 -->
     <view class="header-card">
       <view class="title-row">
@@ -55,9 +60,9 @@
       </view>
 
       <view wx:if="{{taskSheet.tasks && taskSheet.tasks.length > 0}}" class="task-list">
-        <view wx:for="{{taskSheet.tasks}}" wx:key="id" class="task-item {{item.completed ? 'completed' : ''}}">
+        <view wx:for="{{taskSheet.tasks}}" wx:key="id" class="task-item {{item.status === 'completed' ? 'completed' : ''}}" bindtap="onTaskTap" data-id="{{item.id}}">
           <view class="task-checkbox">
-            <view wx:if="{{item.completed}}" class="checkbox-checked">✓</view>
+            <view wx:if="{{item.status === 'completed'}}" class="checkbox-checked">✓</view>
             <view wx:else class="checkbox-empty"></view>
           </view>
           <view class="task-content">
@@ -80,8 +85,8 @@
     </view>
 
     <!-- 底部操作栏 -->
-    <view class="action-bar">
-      <button class="action-btn secondary" bindtap="syncProgress">
+    <view class="action-bar" wx:if="{{canEdit}}">
+      <button class="action-btn secondary" bindtap="syncProgress" loading="{{syncing}}" disabled="{{syncing}}">
         <text class="btn-icon">🔄</text>
         <text>同步进度</text>
       </button>
@@ -89,6 +94,7 @@
         <text class="btn-icon">➕</text>
         <text>添加任务</text>
       </button>
+      <button class="action-btn secondary" bindtap="onDeleteSheet">删除任务单</button>
     </view>
   </view>
 

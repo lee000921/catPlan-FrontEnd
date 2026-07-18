@@ -1,6 +1,8 @@
 <view class="container">
-  <!-- 顶部装饰 -->
-  <view class="top-decoration"></view>
+  <view class="page-header">
+    <text class="page-title">📋 任务中心</text>
+    <text class="page-subtitle">查看任务进度，创建或审批任务</text>
+  </view>
   
   <!-- 用户信息卡片 -->
   <view class="user-card" wx:if="{{userInfo}}">
@@ -9,14 +11,10 @@
         <image class="user-avatar" src="{{userInfo.avatarUrl}}"></image>
         <view class="user-info-text">
           <text class="user-name">{{userInfo.nickName}}</text>
-          <text class="user-role">{{userType === 'A' ? '申请者' : '审批者'}}</text>
+          <text class="user-role">{{roleLabel}}</text>
         </view>
       </view>
       <view class="user-actions">
-        <button class="role-switch-btn" bindtap="onToggleUserType">
-          <text class="switch-icon">🔄</text>
-          <text class="switch-text">切换角色</text>
-        </button>
         <button class="logout-btn" bindtap="onLogout">
           <text class="logout-icon">🚪</text>
           <text class="logout-text">退出</text>
@@ -55,15 +53,19 @@
     </view>
   </view>
 
-  <!-- 审批者视图切换（仅B类用户可见） -->
-  <view class="view-switcher" wx:if="{{userType === 'B' || (userType && userType.includes('B'))}}">
+  <!-- 双角色用户可在自己的任务与审批队列之间切换。 -->
+  <view class="view-switcher" wx:if="{{canApprove}}">
     <view class="switcher-tabs">
-      <view class="tab-item {{!showMyApprovals ? 'active' : ''}}" bindtap="onSwitchView" data-view="pending">
+      <view wx:if="{{canCreate}}" class="tab-item {{activeView === 'mine' ? 'active' : ''}}" bindtap="onSwitchView" data-view="mine">
+        <text class="tab-icon">📋</text>
+        <text class="tab-text">我的任务</text>
+      </view>
+      <view class="tab-item {{activeView === 'pending' ? 'active' : ''}}" bindtap="onSwitchView" data-view="pending">
         <text class="tab-icon">📝</text>
         <text class="tab-text">待审批</text>
         <view class="tab-badge" wx:if="{{stats.pending > 0}}">{{stats.pending}}</view>
       </view>
-      <view class="tab-item {{showMyApprovals ? 'active' : ''}}" bindtap="onSwitchView" data-view="my">
+      <view class="tab-item {{activeView === 'my' ? 'active' : ''}}" bindtap="onSwitchView" data-view="my">
         <text class="tab-icon">📂</text>
         <text class="tab-text">我的审批</text>
       </view>
@@ -80,8 +82,13 @@
     
     <!-- 空状态 -->
     <view wx:if="{{!loading && tasks.length === 0}}" class="empty-container">
-      <view class="empty-icon">📭</view>
-      <text class="empty-title">暂无任务</text>
+      <view class="cat-hero">
+        <image class="cat-image" src="../../assets/cat-lxh.png" mode="aspectFit" />
+        <view class="cat-hero-text">
+          <text class="cat-hero-title">今天还没有任务喵</text>
+          <text class="cat-hero-subtitle">{{showMyApprovals ? '等申请者提交后，小黑会提醒你审批' : '去创建一个小目标，让小黑帮你记着'}}</text>
+        </view>
+      </view>
       <text class="empty-subtitle">{{showMyApprovals ? '还没有审批过任何任务' : '还没有任务记录'}}</text>
     </view>
     
@@ -96,7 +103,7 @@
           <view class="task-title-section">
             <text class="task-title">{{item.title}}</text>
             <view class="task-meta">
-              <text class="task-date">{{item.created_at.substring(5, 10)}}</text>
+              <text class="task-date">{{item.createdDate}}</text>
               <text class="task-id">#{{item.id}}</text>
             </view>
           </view>
@@ -118,7 +125,7 @@
         <!-- 审批信息（仅在"我的审批"视图中显示） -->
         <view class="approval-info" wx:if="{{showMyApprovals && item.approval_date}}">
           <view class="approval-meta">
-            <text class="approval-date">审批时间：{{item.approval_date.substring(5, 16)}}</text>
+            <text class="approval-date">审批时间：{{item.approvalDate}}</text>
             <view class="approval-status-badge {{item.approval_status}}">
               {{item.approval_status === 'approved' ? '已通过' : '已拒绝'}}
             </view>
@@ -147,25 +154,18 @@
     <view class="safe-bottom"></view>
   </scroll-view>
 
-  <!-- 悬浮创建按钮组 -->
-  <view class="fab-container {{fabExpanded ? 'show-extended' : ''}}" wx:if="{{userType === 'A' || (userType && userType.includes('A'))}}">
-    <!-- 主按钮 -->
-    <button class="fab-main" bindtap="onFabToggle">
-      <text class="fab-icon">✨</text>
-    </button>
-    
-    <!-- 扩展按钮 -->
+  <!-- 悬浮创建按钮组（仅 A 类用户可见） -->
+  <view class="fab-container" wx:if="{{canCreate}}">
+    <!-- 扩展按钮（仅保留两个入口：新建任务 / 新建任务单） -->
     <view class="fab-extended">
       <button class="fab-ext-btn" catchtap="onSubmitTask">
         <text class="ext-icon">📝</text>
-        <text class="ext-text">创建任务</text>
+        <text class="ext-text">新建任务</text>
       </button>
       <button class="fab-ext-btn" catchtap="onCreateTaskSheet">
         <text class="ext-icon">📋</text>
-        <text class="ext-text">创建任务单</text>
+        <text class="ext-text">新建任务单</text>
       </button>
     </view>
-    
-    <view class="fab-ripple"></view>
   </view>
 </view>

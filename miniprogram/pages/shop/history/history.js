@@ -1,132 +1,94 @@
-// pages/shop/history/history.js
-const app = getApp();
+const { getExchangeHistory } = require('../../../services/shop');
+const { getErrorMessage } = require('../../../utils/request');
+
+function formatTime(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  const pad = number => String(number).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function historyViewModel(exchange) {
+  return {
+    ...exchange,
+    productId: exchange.item_id,
+    productName: exchange.item_name || '已下架商品',
+    points: Number(exchange.points_spent || 0),
+    count: Number(exchange.quantity || 1),
+    createTime: formatTime(exchange.created_at),
+    orderNo: exchange.id,
+    statusText: exchange.status === 'completed' ? '兑换成功' : '已取消',
+    statusClass: exchange.status === 'completed' ? 'success' : 'failed',
+  };
+}
 
 Page({
   data: {
     exchangeList: [],
-    loading: true,
+    loading: false,
     hasMore: true,
-    page: 1,
+    page: 0,
     pageSize: 10,
     total: 0,
-    userInfo: null
   },
 
   onLoad() {
-    this.loadExchangeHistory();
+    this.loadExchangeHistory(false);
+  },
+
+  async loadExchangeHistory(loadMore = false) {
+    if (this.data.loading) return;
+    this.setData({ loading: true });
+
+    const page = loadMore ? this.data.page + 1 : 0;
+    try {
+      const response = await getExchangeHistory(
+        this.data.pageSize,
+        page * this.data.pageSize
+      );
+      const incoming = (response.exchanges || []).map(historyViewModel);
+      const exchangeList = loadMore
+        ? [...this.data.exchangeList, ...incoming]
+        : incoming;
+      this.setData({
+        exchangeList,
+        page,
+        total: Number(response.total || 0),
+        hasMore: exchangeList.length < Number(response.total || 0),
+      });
+    } catch (error) {
+      wx.showToast({ title: getErrorMessage(error), icon: 'none' });
+    } finally {
+      this.setData({ loading: false });
+      wx.stopPullDownRefresh();
+    }
   },
 
   onPullDownRefresh() {
-    this.setData({ page: 1, hasMore: true });
-    this.loadExchangeHistory();
+    this.loadExchangeHistory(false);
   },
 
   onReachBottom() {
-    if (this.data.hasMore && !this.data.loading) {
-      this.loadExchangeHistory(true);
+    if (this.data.hasMore) this.loadExchangeHistory(true);
+  },
+
+  viewDetail(event) {
+    const id = Number(event.currentTarget.dataset.id);
+    if (Number.isInteger(id)) {
+      wx.navigateTo({ url: `/pages/shop/detail/detail?id=${id}` });
     }
   },
 
-  onShow() {
-    // 页面显示时刷新数据
-    if (this.data.exchangeList.length > 0) {
-      this.setData({ page: 1, hasMore: true, exchangeList: [] });
-      this.loadExchangeHistory();
-    }
-  },
-
-  // 加载兑换历史
-  loadExchangeHistory(isLoadMore = false) {
-    this.setData({ loading: true });
-
-    const { page, pageSize } = this.data;
-    const currentPage = isLoadMore ? page + 1 : 1;
-    const offset = (currentPage - 1) * pageSize;
-
-    const token = wx.getStorageSync('catplan_token') || wx.getStorageSync('token') || '';
-
-    wx.request({
-      url: app.globalData.backendBase + '/api/shop/exchange-history',
-      method: 'GET',
-      data: {
-        limit: pageSize,
-        offset
-      },
-      header: token ? {
-        'Authorization': 'Bearer ' + token
-      } : {},
-      success: (res) => {
-        if (res.statusCode === 200 && res.data && res.data.ok) {
-          const list = res.data.exchanges || [];
-          const total = typeof res.data.total === 'number' ? res.data.total : list.length;
-          
-          if (isLoadMore) {
-            this.setData({
-              exchangeList: [...this.data.exchangeList, ...list],
-              page: currentPage,
-              loading: false,
-              hasMore: this.data.exchangeList.length + list.length < total,
-              total
-            });
-          } else {
-            this.setData({
-              exchangeList: list,
-              page: currentPage,
-              loading: false,
-              hasMore: list.length < total,
-              total
-            });
-          }
-          
-          wx.stopPullDownRefresh();
-        } else {
-          this.setData({ loading: false });
-          wx.stopPullDownRefresh();
-          wx.showToast({
-            title: '加载失败',
-            icon: 'none'
-          });
-        }
-      },
-      fail: (err) => {
-        console.error('加载兑换历史失败', err);
-        this.setData({ loading: false });
-        wx.stopPullDownRefresh();
-        wx.showToast({
-          title: '网络错误',
-          icon: 'none'
-        });
-      }
-    });
-  },
-
-  // 查看兑换详情
-  viewDetail(e) {
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${id}`
-    });
-  },
-
-  // 联系商家
   contactSeller() {
     wx.showModal({
-      title: '联系客服',
-      content: '请联系管理员领取您的兑换物品',
-      confirmText: '拨打电话',
-      confirmColor: '#4A90D9',
-      success: (res) => {
-        if (res.confirm) {
-          wx.makePhoneCall({
-            phoneNumber: '1234567890' // 替换为实际客服电话
-          });
-        }
-      }
+      title: '领取提示',
+      content: '请联系管理员领取已兑换物品。',
+      showCancel: false,
     });
   },
 
-  // 返回列表
   goBack() {
     wx.navigateBack();
-  }
-})
+  },
+});

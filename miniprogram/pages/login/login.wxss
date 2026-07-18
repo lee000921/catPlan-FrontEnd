@@ -1,4 +1,4 @@
-/* 登录页样式 - 蓝色系现代化设计 */
+/* 登录页样式 - 小黑猫可爱风 */
 
 .container {
   padding: 40rpx;
@@ -6,15 +6,17 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  background: radial-gradient(circle at top left, #ffe7ba 0%, transparent 55%),
+              radial-gradient(circle at top right, #ffd6e7 0%, transparent 55%),
+              radial-gradient(circle at bottom, #e6fffb 0%, #fefefe 60%);
 }
 
 .card {
   width: 680rpx;
   background: #fff;
   border-radius: 32rpx;
-  box-shadow: 0 20rpx 60rpx rgba(24, 144, 255, 0.25);
-  padding: 60rpx 40rpx;
+  box-shadow: 0 18rpx 50rpx rgba(0, 0, 0, 0.08);
+  padding: 52rpx 40rpx 56rpx;
   align-items: center;
   text-align: center;
   position: relative;
@@ -28,7 +30,25 @@
   left: 0;
   right: 0;
   height: 8rpx;
-  background: linear-gradient(90deg, #1890ff, #40a9ff);
+  background: linear-gradient(90deg, #95de64, #5cdbd3, #b37feb);
+}
+
+/* 小黑猫头部区域（复用全局 cat-hero 结构，但根据登录页稍作调整）*/
+.cat-hero {
+  margin-bottom: 40rpx;
+}
+
+.cat-face {
+  width: 132rpx;
+  height: 132rpx;
+}
+
+.cat-hero-title {
+  font-size: 32rpx;
+}
+
+.cat-hero-subtitle {
+  font-size: 24rpx;
 }
 
 .title {
@@ -48,7 +68,7 @@
   transform: translateX(-50%);
   width: 80rpx;
   height: 6rpx;
-  background: linear-gradient(90deg, #1890ff, #40a9ff);
+  background: linear-gradient(90deg, #95de64, #5cdbd3, #b37feb);
   border-radius: 3rpx;
 }
 
@@ -75,13 +95,13 @@
   margin-bottom: 24rpx;
   padding: 24rpx;
   border-radius: 20rpx;
-  background: linear-gradient(135deg, #f0f5ff, #ffffff);
-  border: 2rpx solid #e6f7ff;
+  background: linear-gradient(135deg, #fdfbff, #f5fffb);
+  border: 2rpx solid #e6fffb;
   transition: all 0.3s ease;
 }
 
 .role-item:active {
-  background: #e6f7ff;
+  background: #f0fffb;
   transform: translateY(-2rpx);
 }
 
@@ -125,8 +145,8 @@
   height: 140rpx;
   border-radius: 70rpx;
   margin-bottom: 20rpx;
-  border: 6rpx solid #e6f7ff;
-  box-shadow: 0 8rpx 24rpx rgba(24, 144, 255, 0.15);
+  border: 6rpx solid #f0fffb;
+  box-shadow: 0 8rpx 24rpx rgba(92, 219, 211, 0.3);
 }
 
 .nick {
@@ -142,13 +162,13 @@
 
 .login-btn {
   width: 100%;
-  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  background: linear-gradient(135deg, #95de64, #5cdbd3);
   color: #fff;
   padding: 28rpx 0;
   border-radius: 48rpx;
   font-size: 34rpx;
   font-weight: 600;
-  box-shadow: 0 12rpx 32rpx rgba(24, 144, 255, 0.35);
+  box-shadow: 0 14rpx 36rpx rgba(92, 219, 211, 0.4);
   transition: all 0.3s ease;
   border: none;
   letter-spacing: 2rpx;
@@ -165,8 +185,8 @@
 
 .logout-btn {
   width: 100%;
-  background: #f5f5f5;
-  color: #8c8c8c;
+  background: #fff7e6;
+  color: #fa8c16;
   padding: 24rpx 0;
   border-radius: 48rpx;
   font-size: 30rpx;
@@ -188,7 +208,7 @@
   color: #8c8c8c;
   font-size: 26rpx;
   padding: 16rpx 24rpx;
-  background: #f0f5ff;
+  background: #fef6e6;
   border-radius: 16rpx;
-  border-left: 6rpx solid #1890ff;
+  border-left: 6rpx solid #faad14;
 }

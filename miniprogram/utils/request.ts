@@ -1,225 +1,186 @@
-/**
- * API 请求封装
- * 统一管理所有 HTTP 请求
- */
+import { clearSession, getSession } from './session';
 
-interface RequestConfig {
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+export interface RequestConfig {
   url: string;
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS' | 'HEAD' | 'TRACE' | 'CONNECT';
-  data?: Record<string, any>;
+  method?: HttpMethod;
+  data?: WechatMiniprogram.IAnyObject;
   header?: Record<string, string>;
   timeout?: number;
+  authenticated?: boolean;
 }
 
-interface ApiResponse<T = any> {
-  code: number;
-  message: string;
-  data: T;
-  timestamp: number;
+interface BackendError {
+  code?: string;
+  message?: string;
 }
 
-// 从本地存储获取 token（兼容旧 key）
-function getToken(): string {
-  // 新版统一使用 catplan_token，兼容读取旧的 token key
-  const token = wx.getStorageSync('catplan_token') || wx.getStorageSync('token');
-  return token || '';
+interface BackendEnvelope {
+  ok?: boolean;
+  error?: BackendError | string;
 }
 
-// 请求拦截器 - 添加公共 header
-function setDefaultHeaders(config: RequestConfig): RequestConfig {
-  const token = getToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...config.header,
-  };
+export class ApiError extends Error {
+  readonly statusCode: number;
+  readonly code: string;
+  readonly details?: unknown;
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  return {
-    ...config,
-    header: headers,
-  };
-}
-
-// 响应拦截器 - 处理通用错误
-function handleResponse<T>(
-  response: any,
-  resolve: (value: T) => void,
-  reject: (reason?: any) => void
-): void {
-  const { statusCode, data } = response;
-
-  if (statusCode === 200 || statusCode === 201) {
-    const apiResponse = data as ApiResponse<T>;
-
-    if (apiResponse.code === 0) {
-      // 业务请求成功
-      resolve(apiResponse.data);
-    } else if (apiResponse.code === 401) {
-      // token 过期或无效，清除本地数据并重新登录
-      wx.removeStorageSync('token');
-      wx.removeStorageSync('userInfo');
-      wx.showModal({
-        title: '登录过期',
-        content: '请重新登录',
-        confirmText: '立即登录',
-        success: (res) => {
-          if (res.confirm) {
-            // 跳转到登录页面
-            wx.redirectTo({
-              url: '/pages/login/login',
-            });
-          }
-        },
-      });
-      reject(new Error('Unauthorized'));
-    } else {
-      // 业务请求失败
-      reject(new Error(apiResponse.message || '请求失败'));
-    }
-  } else {
-    // HTTP 状态码错误
-    reject(
-      new Error(
-        `HTTP Error: ${statusCode} ${data?.message || 'Unknown error'}`
-      )
-    );
+  constructor(
+    message: string,
+    options: { statusCode?: number; code?: string; details?: unknown } = {}
+  ) {
+    super(message);
+    this.name = 'ApiError';
+    this.statusCode = options.statusCode || 0;
+    this.code = options.code || 'REQUEST_FAILED';
+    this.details = options.details;
   }
 }
 
-/**
- * 统一 API 请求函数
- * @param config 请求配置
- * @returns Promise<ApiResponse>
- */
-export function request<T = any>(config: RequestConfig): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const finalConfig = setDefaultHeaders({
-      method: 'GET',
-      timeout: 10000,
-      ...config,
+let redirectingToLogin = false;
+
+function getApiBaseUrl(): string {
+  const app = getApp<{
+    globalData?: { backendBase?: string };
+  }>();
+  const baseUrl = app?.globalData?.backendBase || '';
+  if (!baseUrl) {
+    throw new ApiError('后端地址未配置', { code: 'API_BASE_URL_MISSING' });
+  }
+  return baseUrl.replace(/\/+$/, '');
+}
+
+function errorFromResponse(
+  statusCode: number,
+  data: BackendEnvelope | undefined
+): ApiError {
+  const backendError = data?.error;
+  if (typeof backendError === 'string') {
+    return new ApiError(backendError, {
+      statusCode,
+      code: `HTTP_${statusCode}`,
+      details: data,
     });
+  }
+  return new ApiError(
+    backendError?.message || (statusCode >= 500 ? '服务暂时不可用' : '请求失败'),
+    {
+      statusCode,
+      code: backendError?.code || `HTTP_${statusCode}`,
+      details: data,
+    }
+  );
+}
+
+function handleUnauthorized(): void {
+  clearSession();
+  if (redirectingToLogin) return;
+  redirectingToLogin = true;
+  wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' });
+  setTimeout(() => {
+    wx.reLaunch({
+      url: '/pages/login/login',
+      complete: () => {
+        redirectingToLogin = false;
+      },
+    });
+  }, 500);
+}
+
+export function request<T extends BackendEnvelope = BackendEnvelope>(
+  config: RequestConfig
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const authenticated = config.authenticated !== false;
+    const session = getSession();
+    const headers: Record<string, string> = {
+      'content-type': 'application/json',
+      ...config.header,
+    };
+
+    if (authenticated) {
+      if (!session?.token) {
+        handleUnauthorized();
+        reject(
+          new ApiError('请先登录', {
+            statusCode: 401,
+            code: 'AUTH_REQUIRED',
+          })
+        );
+        return;
+      }
+      headers.Authorization = `Bearer ${session.token}`;
+    }
+
+    let baseUrl: string;
+    try {
+      baseUrl = getApiBaseUrl();
+    } catch (error) {
+      reject(error);
+      return;
+    }
 
     wx.request({
-      url: `${getApiBaseUrl()}${finalConfig.url}`,
-      method: finalConfig.method,
-      data: finalConfig.data,
-      header: finalConfig.header,
-      timeout: finalConfig.timeout,
-      success: (response) => {
-        handleResponse<T>(response, resolve, reject);
+      url: `${baseUrl}${config.url}`,
+      method: config.method || 'GET',
+      data: config.data,
+      header: headers,
+      timeout: config.timeout || 10000,
+      success(response) {
+        const statusCode = response.statusCode;
+        const data = response.data as T;
+
+        if (statusCode >= 200 && statusCode < 300 && data?.ok !== false) {
+          resolve(data);
+          return;
+        }
+
+        if (statusCode === 401) handleUnauthorized();
+        reject(errorFromResponse(statusCode, data));
       },
-      fail: (error) => {
-        console.error('Request failed:', error);
-        reject(new Error('网络请求失败'));
+      fail(error) {
+        reject(
+          new ApiError('网络连接失败，请稍后重试', {
+            code: 'NETWORK_ERROR',
+            details: error,
+          })
+        );
       },
     });
   });
 }
 
-/**
- * GET 请求
- */
-export function get<T = any>(
+export function get<T extends BackendEnvelope>(
   url: string,
-  config?: Omit<RequestConfig, 'url' | 'method'>
+  data?: WechatMiniprogram.IAnyObject,
+  authenticated = true
 ): Promise<T> {
-  return request<T>({
-    ...config,
-    url,
-    method: 'GET',
-  });
+  return request<T>({ url, data, authenticated });
 }
 
-/**
- * POST 请求
- */
-export function post<T = any>(
+export function post<T extends BackendEnvelope>(
   url: string,
-  data?: Record<string, any>,
-  config?: Omit<RequestConfig, 'url' | 'method' | 'data'>
+  data?: WechatMiniprogram.IAnyObject,
+  authenticated = true
 ): Promise<T> {
-  return request<T>({
-    ...config,
-    url,
-    method: 'POST',
-    data,
-  });
+  return request<T>({ url, method: 'POST', data, authenticated });
 }
 
-/**
- * PUT 请求
- */
-export function put<T = any>(
+export function put<T extends BackendEnvelope>(
   url: string,
-  data?: Record<string, any>,
-  config?: Omit<RequestConfig, 'url' | 'method' | 'data'>
+  data?: WechatMiniprogram.IAnyObject
 ): Promise<T> {
-  return request<T>({
-    ...config,
-    url,
-    method: 'PUT',
-    data,
-  });
+  return request<T>({ url, method: 'PUT', data });
 }
 
-/**
- * DELETE 请求
- */
-export function del<T = any>(
+export function del<T extends BackendEnvelope>(
   url: string,
-  config?: Omit<RequestConfig, 'url' | 'method'>
+  data?: WechatMiniprogram.IAnyObject
 ): Promise<T> {
-  return request<T>({
-    ...config,
-    url,
-    method: 'DELETE',
-  });
+  return request<T>({ url, method: 'DELETE', data });
 }
 
-/**
- * 获取 API 基础 URL
- */
-function getApiBaseUrl(): string {
-  // 优先从全局 app 配置读取，保证与小程序其它页面保持一致
-  try {
-    const app = getApp<{
-      globalData?: { backendBase?: string; baseUrl?: string };
-    }>();
-    if (app && app.globalData) {
-      if (app.globalData.backendBase) {
-        return app.globalData.backendBase;
-      }
-      if (app.globalData.baseUrl) {
-        return app.globalData.baseUrl;
-      }
-    }
-  } catch (e) {
-    // getApp 在极早期调用时可能不可用，忽略错误走默认值
-  }
-
-  // 默认回退到正式环境域名（需在微信后台配置为合法 request 域名）
-  return 'https://catplan.xin';
-  // return 'http://localhost:3000'; // 如需本地开发可暂时切换
-}
-
-/**
- * 保存 token 到本地存储
- */
-export function setToken(token: string): void {
-  // 统一存到 catplan_token，并兼容旧 key
-  wx.setStorageSync('catplan_token', token);
-  wx.setStorageSync('token', token);
-}
-
-/**
- * 清除 token
- */
-export function clearToken(): void {
-  wx.removeStorageSync('catplan_token');
-  wx.removeStorageSync('token');
-  wx.removeStorageSync('userInfo');
-  wx.removeStorageSync('catplan_user');
+export function getErrorMessage(error: unknown, fallback = '操作失败'): string {
+  return error instanceof Error && error.message ? error.message : fallback;
 }

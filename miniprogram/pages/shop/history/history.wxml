@@ -1,8 +1,13 @@
 <!--pages/shop/history/history.wxml-->
 <view class="container">
+  <view class="page-header">
+    <text class="page-title">📜 兑换记录</text>
+    <text class="page-subtitle">看看小黑帮你换过什么</text>
+  </view>
+
   <!-- 顶部统计 -->
   <view class="header card">
-    <view class="header-title">兑换记录</view>
+    <view class="header-title">兑换统计</view>
     <view class="header-stats">
       <text class="stats-label">共兑换</text>
       <text class="stats-value">{{total}}</text>
@@ -33,8 +38,8 @@
       >
         <view class="item-header">
           <view class="item-status">
-            <text class="status-tag {{item.status === 'success' ? 'success' : item.status === 'pending' ? 'pending' : 'failed'}}">
-              {{item.statusText || (item.status === 'success' ? '兑换成功' : item.status === 'pending' ? '处理中' : '兑换失败')}}
+            <text class="status-tag {{item.statusClass}}">
+              {{item.statusText}}
             </text>
             <text class="item-time">{{item.createTime}}</text>
           </view>
@@ -42,7 +47,7 @@
         </view>
 
         <view class="item-content">
-          <image class="item-image" src="{{item.productImage || '/images/default-product.png'}}" mode="aspectFill"></image>
+          <image class="item-image" src="{{item.productImage || '../../../assets/cat-lxh.png'}}" mode="aspectFill"></image>
           <view class="item-info">
             <text class="item-name">{{item.productName}}</text>
             <view class="item-meta">
@@ -52,7 +57,7 @@
           </view>
         </view>
 
-        <view class="item-footer" wx:if="{{item.status === 'success'}}">
+        <view class="item-footer" wx:if="{{item.status === 'completed'}}">
           <text class="footer-tip">✓ 兑换成功，请联系管理员领取</text>
         </view>
       </view>

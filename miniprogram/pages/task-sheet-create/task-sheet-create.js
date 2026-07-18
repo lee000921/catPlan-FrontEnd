@@ -1,191 +1,185 @@
-const app = getApp();
+const { createTaskSheet } = require('../../services/taskSheets');
+const { listTasks } = require('../../services/tasks');
+const { getErrorMessage } = require('../../utils/request');
+const { getSession, hasRole } = require('../../utils/session');
+
+function localDate() {
+  const now = new Date();
+  const pad = value => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
 
 Page({
   data: {
     formData: {
       title: '',
-      date: new Date().toISOString().slice(0, 10)
+      date: localDate(),
     },
-    taskMode: 'select',
-    todayTasks: [], // 当天已有的任务（单次 + 周期）
-    availableTasks: [],
+    todayTasks: [],
     selectedTasks: [],
+    selectedTaskPreviews: [],
     newTasks: [],
     newTask: {
       title: '',
       description: '',
-      points: ''
+      points: '',
     },
-    submitting: false
+    loadingTasks: false,
+    submitting: false,
   },
 
   onLoad() {
+    const session = getSession();
+    if (!session) {
+      wx.reLaunch({ url: '/pages/login/login' });
+      return;
+    }
+    if (!hasRole(session, 'A')) {
+      wx.showToast({ title: '当前账号不能创建任务单', icon: 'none' });
+      setTimeout(() => wx.navigateBack(), 1200);
+      return;
+    }
     this.loadTodayTasks();
   },
 
-  // 加载当天已有任务
-  loadTodayTasks() {
-    const openid = wx.getStorageSync('catplan_user_openid');
-    const date = this.data.formData.date;
-    
-    if (!openid) {
-      wx.showToast({ title: '请先登录', icon: 'none' });
-      return;
+  async loadTodayTasks() {
+    this.setData({ loadingTasks: true });
+    try {
+      const response = await listTasks({
+        user_type: 'A',
+        date: this.data.formData.date,
+      });
+      const selected = new Set(this.data.selectedTasks.map(Number));
+      this.setData({
+        todayTasks: (response.tasks || []).map(task => ({
+          ...task,
+          selected: selected.has(Number(task.id)),
+        })),
+      });
+      this.updateSelectedTaskPreviews();
+    } catch (error) {
+      wx.showToast({ title: getErrorMessage(error), icon: 'none' });
+    } finally {
+      this.setData({ loadingTasks: false });
     }
+  },
 
-    wx.request({
-      url: app.globalData.backendBase + '/api/tasks?date=' + date + '&applicant_openid=' + openid,
-      method: 'GET',
-      success: (res) => {
-        if (res.data && res.data.ok) {
-          this.setData({
-            todayTasks: res.data.tasks || []
-          });
-        }
-      }
+  onTitleInput(event) {
+    this.setData({ 'formData.title': event.detail.value });
+  },
+
+  onDateChange(event) {
+    const date = event.detail.value;
+    this.setData({
+      'formData.date': date,
+      'formData.title': `${date} 任务单`,
+      selectedTasks: [],
+      selectedTaskPreviews: [],
+    });
+    this.loadTodayTasks();
+  },
+
+  toggleTask(event) {
+    const taskId = Number(event.currentTarget.dataset.id);
+    if (!Number.isInteger(taskId)) return;
+
+    const selected = new Set(this.data.selectedTasks.map(Number));
+    if (selected.has(taskId)) selected.delete(taskId);
+    else selected.add(taskId);
+
+    this.setData({
+      selectedTasks: [...selected],
+      todayTasks: this.data.todayTasks.map(task => ({
+        ...task,
+        selected: selected.has(Number(task.id)),
+      })),
+    });
+    this.updateSelectedTaskPreviews();
+  },
+
+  updateSelectedTaskPreviews() {
+    const selected = new Set(this.data.selectedTasks.map(Number));
+    this.setData({
+      selectedTaskPreviews: this.data.todayTasks.filter(task =>
+        selected.has(Number(task.id))
+      ),
     });
   },
 
-  onTitleInput(e) {
-    this.setData({ 'formData.title': e.detail.value });
+  onNewTaskTitleInput(event) {
+    this.setData({ 'newTask.title': event.detail.value });
   },
 
-  onDateChange(e) {
-    this.setData({ 
-      'formData.date': e.detail.value,
-      'formData.title': e.detail.value + ' 任务单'
-    });
-    this.loadTodayTasks(); // 重新加载当天的任务
+  onNewTaskDescInput(event) {
+    this.setData({ 'newTask.description': event.detail.value });
   },
 
-  setTaskMode(e) {
-    this.setData({ taskMode: e.currentTarget.dataset.mode });
-  },
-
-  toggleTask(e) {
-    const taskId = e.currentTarget.dataset.id;
-    let selected = this.data.selectedTasks;
-    
-    if (selected.includes(taskId)) {
-      selected = selected.filter(id => id !== taskId);
-    } else {
-      selected.push(taskId);
-    }
-    
-    this.setData({ selectedTasks: selected });
-  },
-
-  onNewTaskTitleInput(e) {
-    this.setData({ 'newTask.title': e.detail.value });
-  },
-
-  onNewTaskDescInput(e) {
-    this.setData({ 'newTask.description': e.detail.value });
-  },
-
-  onNewTaskPointsInput(e) {
-    this.setData({ 'newTask.points': e.detail.value });
+  onNewTaskPointsInput(event) {
+    this.setData({ 'newTask.points': event.detail.value });
   },
 
   addNewTask() {
-    const { newTask } = this.data;
-    
-    if (!newTask.title || !newTask.points) {
-      wx.showToast({ title: '请填写任务标题和积分', icon: 'none' });
+    const title = this.data.newTask.title.trim();
+    const description = this.data.newTask.description.trim();
+    const points = Number(this.data.newTask.points);
+
+    if (!title) {
+      wx.showToast({ title: '请输入任务标题', icon: 'none' });
+      return;
+    }
+    if (!Number.isInteger(points) || points <= 0) {
+      wx.showToast({ title: '积分必须是正整数', icon: 'none' });
       return;
     }
 
-    const newTasks = [...this.data.newTasks, { ...newTask, id: 'new_' + Date.now() }];
-    
     this.setData({
-      newTasks,
-      'newTask': { title: '', description: '', points: '' }
+      newTasks: [
+        ...this.data.newTasks,
+        { clientId: `new_${Date.now()}`, title, description, points },
+      ],
+      newTask: { title: '', description: '', points: '' },
     });
+  },
 
-    wx.showToast({ title: '已添加', icon: 'success' });
+  removeNewTask(event) {
+    const clientId = event.currentTarget.dataset.id;
+    this.setData({
+      newTasks: this.data.newTasks.filter(task => task.clientId !== clientId),
+    });
   },
 
   goToCreateTask() {
-    wx.navigateTo({
-      url: '/pages/task-submit/task-submit'
-    });
+    wx.navigateTo({ url: '/pages/task-submit/task-submit' });
   },
 
-  getTaskTitle(taskId) {
-    const task = this.data.todayTasks.find(t => t.id === taskId);
-    return task ? task.title : '未知任务';
-  },
+  async onSubmit() {
+    if (this.data.submitting) return;
 
-  onSubmit() {
     const { formData, selectedTasks, newTasks } = this.data;
-    const openid = wx.getStorageSync('catplan_user_openid');
-
-    if (!formData.title && selectedTasks.length === 0 && newTasks.length === 0) {
-      wx.showToast({ title: '请填写任务单标题或添加任务', icon: 'none' });
+    const title = formData.title.trim() || `${formData.date} 任务单`;
+    if (selectedTasks.length === 0 && newTasks.length === 0) {
+      wx.showToast({ title: '请至少添加一个任务', icon: 'none' });
       return;
     }
 
     this.setData({ submitting: true });
-
-    const createNewTasks = () => {
-      const promises = newTasks.map(task => {
-        return new Promise((resolve) => {
-          wx.request({
-            url: app.globalData.backendBase + '/api/tasks',
-            method: 'POST',
-            data: {
-              applicant_openid: openid,
-              title: task.title,
-              description: task.description || '',
-              points: parseInt(task.points)
-            },
-            success: (res) => {
-              resolve(res.data && res.data.ok ? res.data.taskId || (res.data.task && res.data.task.id) : null);
-            },
-            fail: () => resolve(null)
-          });
-        });
+    try {
+      await createTaskSheet({
+        title,
+        date: formData.date,
+        task_ids: selectedTasks.map(Number),
+        new_tasks: newTasks.map(task => ({
+          title: task.title,
+          description: task.description,
+          points: Number(task.points),
+        })),
       });
-      return Promise.all(promises);
-    };
-
-    const createTaskSheet = (newTaskIds = []) => {
-      const allTaskIds = [...selectedTasks, ...newTaskIds.filter(id => id !== null)];
-      
-      wx.request({
-        url: app.globalData.backendBase + '/api/task-sheets',
-        method: 'POST',
-        data: {
-          title: formData.title || formData.date + ' 任务单',
-          date: formData.date,
-          applicant_openid: openid,
-          task_ids: allTaskIds
-        },
-        success: (res) => {
-          if (res.data && res.data.ok) {
-            wx.showToast({ title: '任务单已提交审核', icon: 'success' });
-            setTimeout(() => {
-              wx.navigateBack();
-            }, 1500);
-          } else {
-            wx.showToast({ title: res.data.error || '提交失败', icon: 'none' });
-          }
-        },
-        fail: () => {
-          wx.showToast({ title: '网络错误', icon: 'none' });
-        },
-        complete: () => {
-          this.setData({ submitting: false });
-        }
-      });
-    };
-
-    if (newTasks.length > 0) {
-      createNewTasks().then(newTaskIds => {
-        createTaskSheet(newTaskIds);
-      });
-    } else {
-      createTaskSheet([]);
+      wx.showToast({ title: '任务单已创建', icon: 'success' });
+      setTimeout(() => wx.navigateBack(), 900);
+    } catch (error) {
+      wx.showToast({ title: getErrorMessage(error), icon: 'none' });
+    } finally {
+      this.setData({ submitting: false });
     }
-  }
+  },
 });

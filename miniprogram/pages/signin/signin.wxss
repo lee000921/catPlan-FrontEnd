@@ -1,25 +1,44 @@
-/* 签到页样式 - 蓝色系设计 */
+/* 签到页样式 - 小黑猫可爱风 */
 
-.container { 
-  padding: 20rpx; 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+.container {
   min-height: 100vh;
+  background: linear-gradient(180deg, #fffaf5 0%, #fefcff 40%, #f5fbff 100%);
+  padding: 32rpx;
+  padding-bottom: 200rpx;
+  box-sizing: border-box;
+}
+
+.page-header {
+  text-align: center;
+  padding-bottom: 24rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #262626;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #8c8c8c;
 }
 
 /* 用户信息卡片 */
 .user-card {
-  width: 710rpx;
+  width: 100%;
+  max-width: 686rpx;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 24rpx;
   padding: 28rpx;
-  margin-bottom: 20rpx;
+  margin: 0 auto 20rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10rpx 34rpx rgba(0, 0, 0, 0.12);
 }
 
 .user-info {
@@ -32,7 +51,7 @@
   height: 80rpx;
   border-radius: 50%;
   margin-right: 20rpx;
-  border: 3rpx solid #1890ff;
+  border: 3rpx solid #5cdbd3;
 }
 
 .user-details {
@@ -49,7 +68,7 @@
 
 .user-level {
   font-size: 24rpx;
-  color: #1890ff;
+  color: #5cdbd3;
   font-weight: 500;
 }
 
@@ -75,13 +94,15 @@
 
 /* 主卡片 */
 .main-card {
-  width: 710rpx;
+  width: 100%;
+  max-width: 686rpx;
   background: #fff;
   border-radius: 28rpx;
   padding: 32rpx;
   box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.12);
   position: relative;
   overflow: hidden;
+  margin: 0 auto;
 }
 
 .main-card::before {
@@ -91,7 +112,7 @@
   left: 0;
   right: 0;
   height: 6rpx;
-  background: linear-gradient(90deg, #1890ff, #40a9ff);
+  background: linear-gradient(90deg, #95de64, #5cdbd3, #b37feb);
 }
 
 /* 日历头部 */
@@ -110,7 +131,7 @@
 }
 
 .nav-btn {
-  background: #f0f5ff;
+  background: #fdfbff;
   border: none;
   width: 64rpx;
   height: 64rpx;
@@ -118,18 +139,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2rpx 8rpx rgba(24, 144, 255, 0.1);
+  box-shadow: 0 2rpx 8rpx rgba(92, 219, 211, 0.15);
   transition: all 0.3s ease;
 }
 
 .nav-btn:active {
   transform: scale(0.95);
-  background: #e6f7ff;
+  background: #f0fffb;
 }
 
 .nav-icon {
   font-size: 32rpx;
-  color: #1890ff;
+  color: #5cdbd3;
   font-weight: 600;
 }
 
@@ -141,24 +162,24 @@
 }
 
 .signin-btn {
-  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  background: linear-gradient(135deg, #95de64, #5cdbd3);
   border: none;
   border-radius: 32rpx;
   padding: 0;
   min-width: 160rpx;
   height: 80rpx;
-  box-shadow: 0 8rpx 24rpx rgba(24, 144, 255, 0.35);
+  box-shadow: 0 10rpx 30rpx rgba(92, 219, 211, 0.40);
   transition: all 0.3s ease;
 }
 
 .signin-btn:active {
   transform: translateY(2rpx);
-  box-shadow: 0 4rpx 16rpx rgba(24, 144, 255, 0.35);
+  box-shadow: 0 6rpx 20rpx rgba(92, 219, 211, 0.38);
 }
 
 .signin-btn.signed {
-  background: linear-gradient(135deg, #95afc0, #535c68);
-  box-shadow: 0 4rpx 16rpx rgba(149, 175, 192, 0.3);
+  background: linear-gradient(135deg, #d9d9d9, #8c8c8c);
+  box-shadow: 0 4rpx 16rpx rgba(140, 140, 140, 0.3);
 }
 
 .signin-btn[disabled] {
@@ -224,12 +245,12 @@
 }
 
 .day-cell.today {
-  background: #f0f5ff;
+  background: #fdfbff;
   border-radius: 16rpx;
 }
 
 .day-cell.signed {
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(64, 169, 255, 0.1));
+  background: linear-gradient(135deg, rgba(149, 222, 100, 0.16), rgba(92, 219, 211, 0.16));
   border-radius: 16rpx;
 }
 
@@ -241,18 +262,18 @@
 }
 
 .day-cell.signed .day-number {
-  color: #1890ff;
+  color: #5cdbd3;
 }
 
 .day-indicator {
   width: 32rpx;
   height: 32rpx;
-  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  background: linear-gradient(135deg, #95de64, #5cdbd3);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2rpx 8rpx rgba(24, 144, 255, 0.3);
+  box-shadow: 0 2rpx 8rpx rgba(92, 219, 211, 0.38);
 }
 
 .indicator-icon {
@@ -283,8 +304,8 @@
 }
 
 .stat-card.highlight {
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(64, 169, 255, 0.1));
-  border: 2rpx solid rgba(24, 144, 255, 0.2);
+  background: linear-gradient(135deg, rgba(250, 173, 20, 0.10), rgba(250, 173, 20, 0.02));
+  border: 2rpx solid rgba(250, 173, 20, 0.4);
 }
 
 .stat-icon {
@@ -304,7 +325,7 @@
 }
 
 .stat-card.highlight .stat-value {
-  color: #1890ff;
+  color: #faad14;
 }
 
 .stat-label {
@@ -314,13 +335,14 @@
 
 /* 奖励卡片 */
 .reward-card {
-  width: 710rpx;
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
-  border: 2rpx solid rgba(255, 193, 7, 0.3);
+  width: 100%;
+  max-width: 686rpx;
+  background: linear-gradient(135deg, #fffbe6, #fff7e6);
+  border: 2rpx solid rgba(250, 173, 20, 0.35);
   border-radius: 20rpx;
   padding: 28rpx;
-  margin-top: 20rpx;
-  box-shadow: 0 8rpx 24rpx rgba(255, 193, 7, 0.15);
+  margin: 20rpx auto 0;
+  box-shadow: 0 8rpx 24rpx rgba(250, 173, 20, 0.18);
 }
 
 .reward-header {

@@ -1,11 +1,24 @@
 <view class="container">
+  <view class="page-header">
+    <text class="page-title">📅 每日签到</text>
+    <text class="page-subtitle">和小黑一起坚持打卡</text>
+  </view>
+
+  <view class="cat-hero">
+    <image class="cat-image" src="../../assets/cat-lxh.png" mode="aspectFit" />
+    <view class="cat-hero-text">
+      <text class="cat-hero-title">小黑陪你每天打卡</text>
+      <text class="cat-hero-subtitle">连续签到，小黑给你悄悄加油</text>
+    </view>
+  </view>
+
   <!-- 用户信息卡片 -->
   <view class="user-card">
     <view class="user-info">
       <image class="avatar" src="{{userInfo.avatarUrl}}" wx:if="{{userInfo}}" />
       <view class="user-details">
         <view class="nickname">{{userInfo.nickName}}</view>
-        <view class="user-level">Lv.{{Math.floor(signedCount/7)+1}} 签到达人</view>
+        <view class="user-level">Lv.{{userLevel}} 签到达人</view>
       </view>
     </view>
     <view class="streak-badge">
@@ -56,7 +69,7 @@
         <view class="stat-icon">📅</view>
         <view class="stat-info">
           <view class="stat-value">{{signedCount}}</view>
-          <view class="stat-label">累计签到</view>
+          <view class="stat-label">本月签到</view>
         </view>
       </view>
       <view class="stat-card">
@@ -83,8 +96,8 @@
       <text class="reward-title">签到奖励</text>
     </view>
     <view class="reward-content">
-      <text class="reward-text">基础积分 +10</text>
-      <text class="reward-bonus" wx:if="{{consecutiveCount > 0}}">连续{{consecutiveCount}}天额外 +{{consecutiveCount * 2}}</text>
+      <text class="reward-text">基础积分 + 随机奖励</text>
+      <text class="reward-bonus" wx:if="{{consecutiveCount > 0}}">连续签到还有额外加成</text>
     </view>
   </view>
   
@@ -95,9 +108,7 @@
       <view class="success-icon">🎉</view>
       <view class="points-text">+{{animationPoints}} 积分</view>
       <view class="points-label">签到成功！</view>
-      <view class="points-detail" wx:if="{{consecutiveCount > 1}}">
-        连续{{consecutiveCount}}天额外奖励 +{{consecutiveCount * 2}}
-      </view>
+      <view class="points-detail" wx:if="{{consecutiveCount > 1}}">连续签到奖励已计入</view>
     </view>
   </view>
 </view>

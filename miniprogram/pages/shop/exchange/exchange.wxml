@@ -1,9 +1,14 @@
 <!--pages/shop/exchange/exchange.wxml-->
 <view class="container" wx:if="{{!loading && product}}">
+  <view class="page-header">
+    <text class="page-title">🎯 确认兑换</text>
+    <text class="page-subtitle">确认数量和积分，再让小黑去换</text>
+  </view>
+
   <!-- 商品信息卡片 -->
   <view class="product-card card">
     <view class="product-header">
-      <image class="product-image" src="{{product.imageUrl || '/images/default-product.png'}}" mode="aspectFill"></image>
+      <image class="product-image" src="{{product.imageUrl || '../../../assets/cat-lxh.png'}}" mode="aspectFill"></image>
       <view class="product-info">
         <text class="product-name">{{product.name}}</text>
         <view class="product-points">

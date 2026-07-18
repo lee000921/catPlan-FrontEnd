@@ -1,267 +1,149 @@
 #!/usr/bin/env node
 
-/**
- * 微信小程序自动化部署脚本
- * 使用 miniprogram-ci 实现一键上传
- */
-
-const ci = require('miniprogram-ci');
-const path = require('path');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const path = require('path');
+const ci = require('miniprogram-ci');
 
-// 项目配置
-const PROJECT_PATH = path.resolve(__dirname);
-const MINIPROGRAM_ROOT = path.join(PROJECT_PATH, 'miniprogram');
+const PROJECT_PATH = __dirname;
 const PRIVATE_KEY_PATH = path.join(PROJECT_PATH, 'private.key');
 const VERSION_FILE = path.join(PROJECT_PATH, 'deploy-version.json');
+const { appid: APPID } = require('./project.config.json');
 
-// 从 project.config.json 读取 appid
-const projectConfig = require('./project.config.json');
-const APPID = projectConfig.appid;
-
-/**
- * 生成版本号
- * 格式：YYYYMMDD.HHMMSS
- */
 function generateVersion() {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  
-  return `${year}${month}${day}.${hours}${minutes}${seconds}`;
+  const pad = value => String(value).padStart(2, '0');
+  return [
+    now.getFullYear(),
+    pad(now.getMonth() + 1),
+    pad(now.getDate()),
+    '.',
+    pad(now.getHours()),
+    pad(now.getMinutes()),
+    pad(now.getSeconds()),
+  ].join('');
 }
 
-/**
- * 获取 Git 提交信息
- */
-function getGitInfo() {
+function gitInfo() {
   try {
-    const commitHash = execSync('git rev-parse --short HEAD', { 
-      cwd: PROJECT_PATH, 
-      encoding: 'utf8' 
-    }).trim();
-    const commitMsg = execSync('git log -1 --format=%s', { 
-      cwd: PROJECT_PATH, 
-      encoding: 'utf8' 
-    }).trim();
-    return { commitHash, commitMsg };
-  } catch (e) {
-    return { commitHash: 'unknown', commitMsg: 'No git repo' };
+    return {
+      commitHash: execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+        cwd: PROJECT_PATH,
+        encoding: 'utf8',
+      }).trim(),
+      commitMessage: execFileSync('git', ['log', '-1', '--format=%s'], {
+        cwd: PROJECT_PATH,
+        encoding: 'utf8',
+      }).trim(),
+    };
+  } catch (_error) {
+    return { commitHash: 'unknown', commitMessage: 'Git information unavailable' };
   }
 }
 
-/**
- * 保存版本信息
- */
-function saveVersionInfo(version, gitInfo, uploadResult) {
-  let versionHistory = [];
-  
+function recordDeployment(entry) {
+  let history = [];
   if (fs.existsSync(VERSION_FILE)) {
     try {
-      versionHistory = JSON.parse(fs.readFileSync(VERSION_FILE, 'utf8'));
-    } catch (e) {
-      versionHistory = [];
+      history = JSON.parse(fs.readFileSync(VERSION_FILE, 'utf8'));
+    } catch (_error) {
+      history = [];
     }
   }
-  
-  versionHistory.unshift({
-    version,
-    timestamp: new Date().toISOString(),
-    gitInfo,
-    uploadResult: {
-      success: uploadResult.success,
-      message: uploadResult.message
-    }
-  });
-  
-  // 保留最近 50 条记录
-  if (versionHistory.length > 50) {
-    versionHistory = versionHistory.slice(0, 50);
-  }
-  
-  fs.writeFileSync(VERSION_FILE, JSON.stringify(versionHistory, null, 2));
+  history.unshift(entry);
+  fs.writeFileSync(VERSION_FILE, `${JSON.stringify(history.slice(0, 50), null, 2)}\n`);
 }
 
-/**
- * 主部署函数
- */
-async function deploy(options = {}) {
-  const {
-    version = generateVersion(),
-    desc = '自动部署',
-    upload = true,
-    preview = false
-  } = options;
-
-  console.log('🚀 开始部署微信小程序');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`📦 版本号：${version}`);
-  console.log(`🔑 AppID: ${APPID}`);
-  console.log(`📁 项目路径：${PROJECT_PATH}`);
-  console.log(`📂 小程序目录：${MINIPROGRAM_ROOT}`);
-  
-  // 检查私钥文件
-  if (!fs.existsSync(PRIVATE_KEY_PATH)) {
-    console.error('❌ 错误：未找到私钥文件');
-    console.error(`   请将私钥文件放置在：${PRIVATE_KEY_PATH}`);
-    console.error('');
-    console.error('📋 获取私钥文件步骤：');
-    console.error('   1. 登录微信公众平台：https://mp.weixin.qq.com');
-    console.error('   2. 进入「版本管理」->「版本管理」');
-    console.error('   3. 下载「代码上传密钥」');
-    console.error('   4. 将下载的 .key 文件重命名为 private.key');
-    console.error('   5. 放置到项目根目录：/home/admin/catPlan-Wechat/private.key');
-    console.error('');
-    return { success: false, message: '私钥文件缺失' };
-  }
-
-  const privateKey = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
-  
-  // 获取 Git 信息
-  const gitInfo = getGitInfo();
-  console.log(`📝 Git 提交：${gitInfo.commitHash} - ${gitInfo.commitMsg}`);
-  
-  try {
-    const project = await ci.Project({
-      projectPath: MINIPROGRAM_ROOT,
-      privateKey,
-      appid: APPID,
-      ignores: ['node_modules/**/*', 'dist/**/*', '.git/**/*'],
-    });
-
-    let result;
-    
-    if (preview) {
-      // 预览模式
-      console.log('🔍 正在上传预览版...');
-      result = await ci.preview({
-        project,
-        desc,
-        setting: {
-          es6: true,
-          es7: true,
-          minify: true,
-          minifyWXML: true,
-          minifyWXSS: true,
-          autoPrefixWXSS: true,
-        },
-      });
-      console.log('✅ 预览版上传成功');
-      console.log(`   QR Code: ${result.qrCodeCycLink || '可通过微信开发者工具查看'}`);
-    } else if (upload) {
-      // 上传模式
-      console.log('☁️ 正在上传代码...');
-      result = await ci.upload({
-        project,
-        version,
-        desc,
-        setting: {
-          es6: true,
-          es7: true,
-          minify: true,
-          minifyWXML: true,
-          minifyWXSS: true,
-          autoPrefixWXSS: true,
-        },
-      });
-      console.log('✅ 代码上传成功');
-    }
-
-    // 保存版本信息
-    saveVersionInfo(version, gitInfo, { success: true, message: '上传成功' });
-    
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('✨ 部署完成！');
-    console.log(`📊 版本历史已保存到：${VERSION_FILE}`);
-    
-    return { 
-      success: true, 
-      message: '上传成功',
-      version,
-      result
-    };
-    
-  } catch (error) {
-    console.error('❌ 部署失败');
-    console.error(`   错误信息：${error.message}`);
-    
-    // 保存失败记录
-    saveVersionInfo(version, gitInfo, { 
-      success: false, 
-      message: error.message 
-    });
-    
-    return { 
-      success: false, 
-      message: error.message 
-    };
-  }
-}
-
-// CLI 参数解析
-function parseArgs() {
-  const args = process.argv.slice(2);
+function parseArgs(args) {
   const options = {
     version: generateVersion(),
-    desc: '自动部署',
-    upload: true,
-    preview: false
+    description: 'CatPlan 自动上传',
+    preview: false,
   };
-  
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    
-    if (arg === '-v' || arg === '--version') {
-      options.version = args[++i];
-    } else if (arg === '-d' || arg === '--desc') {
-      options.desc = args[++i];
-    } else if (arg === '-p' || arg === '--preview') {
-      options.preview = true;
-      options.upload = false;
-    } else if (arg === '-h' || arg === '--help') {
-      console.log(`
-微信小程序自动化部署脚本
 
-用法：node deploy.js [选项]
-
-选项:
-  -v, --version <version>  指定版本号 (默认：自动生成)
-  -d, --desc <description> 上传说明 (默认：自动部署)
-  -p, --preview            预览模式 (不正式上传，仅生成预览)
-  -h, --help               显示帮助信息
-
-示例:
-  node deploy.js                           # 使用默认配置部署
-  node deploy.js -v 1.0.0 -d "新版本发布"   # 指定版本号和说明
-  node deploy.js --preview                 # 生成预览版
-
-私钥文件配置:
-  将 private.key 文件放置在项目根目录：
-  /home/admin/catPlan-Wechat/private.key
-
-  获取步骤:
-  1. 登录 https://mp.weixin.qq.com
-  2. 版本管理 -> 下载代码上传密钥
-  3. 重命名为 private.key 并放到项目根目录
-`);
-      process.exit(0);
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index];
+    if (argument === '--preview' || argument === '-p') options.preview = true;
+    else if (argument === '--version' || argument === '-v') {
+      options.version = args[index + 1];
+      index += 1;
+    } else if (argument === '--desc' || argument === '-d') {
+      options.description = args[index + 1];
+      index += 1;
+    } else if (argument === '--help' || argument === '-h') {
+      options.help = true;
+    } else {
+      throw new Error(`不支持的参数：${argument}`);
     }
   }
-  
   return options;
 }
 
-// 主程序
-if (require.main === module) {
-  const options = parseArgs();
-  deploy(options).then(result => {
-    process.exit(result.success ? 0 : 1);
-  });
+function printHelp() {
+  console.log(`微信小程序上传
+
+用法：
+  node deploy.js [--version 1.0.0] [--desc "说明"]
+  node deploy.js --preview
+
+要求：
+  project.config.json 中配置正确的 appid
+  项目根目录存在 private.key（该文件已被 .gitignore 忽略）`);
 }
 
-module.exports = { deploy, generateVersion };
+async function deploy(options) {
+  if (!fs.existsSync(PRIVATE_KEY_PATH)) {
+    throw new Error(`缺少上传密钥：${PRIVATE_KEY_PATH}`);
+  }
+
+  const project = new ci.Project({
+    appid: APPID,
+    type: 'miniProgram',
+    projectPath: PROJECT_PATH,
+    privateKeyPath: PRIVATE_KEY_PATH,
+    ignores: ['node_modules/**/*', '.git/**/*'],
+  });
+
+  const common = {
+    project,
+    desc: options.description,
+    setting: { useProjectConfig: true },
+    onProgressUpdate: console.log,
+  };
+  const result = options.preview
+    ? await ci.preview({ ...common, qrcodeFormat: 'terminal' })
+    : await ci.upload({ ...common, version: options.version });
+
+  recordDeployment({
+    version: options.version,
+    mode: options.preview ? 'preview' : 'upload',
+    timestamp: new Date().toISOString(),
+    git: gitInfo(),
+    success: true,
+  });
+  return result;
+}
+
+if (require.main === module) {
+  let options;
+  try {
+    options = parseArgs(process.argv.slice(2));
+    if (options.help) {
+      printHelp();
+      process.exit(0);
+    }
+  } catch (error) {
+    console.error(error.message);
+    printHelp();
+    process.exit(1);
+  }
+
+  deploy(options)
+    .then(() => console.log(options.preview ? '预览生成成功' : '代码上传成功'))
+    .catch(error => {
+      console.error(`上传失败：${error.message}`);
+      process.exitCode = 1;
+    });
+}
+
+module.exports = { deploy, generateVersion, parseArgs };

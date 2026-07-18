@@ -1,14 +1,19 @@
 <!--pages/shop/list/list.wxml-->
 <view class="container">
+  <view class="page-header">
+    <text class="page-title">🎁 积分商城</text>
+    <text class="page-subtitle">用任务碎片换点小奖励</text>
+  </view>
+
   <!-- 顶部用户信息栏 -->
   <view class="user-bar">
     <view class="user-info">
       <view class="avatar-wrapper">
         <image class="avatar" wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
-        <view class="avatar-placeholder" wx:else>{{userInfo.nickname ? userInfo.nickname[0] : 'U'}}</view>
+        <view class="avatar-placeholder" wx:else>{{userInitial}}</view>
       </view>
       <view class="user-detail">
-        <text class="nickname">{{userInfo.nickname || '用户'}}</text>
+        <text class="nickname">{{userInfo.nickName || '用户'}}</text>
         <view class="user-tags">
           <text class="user-type-tag" wx:if="{{isTypeA}}">A 类用户</text>
         </view>
@@ -35,8 +40,13 @@
 
     <!-- 空状态 -->
     <view wx:elif="{{productList.length === 0}}" class="empty-state">
-      <view class="empty-icon">🎁</view>
-      <text class="empty-title">暂无可兑换物品</text>
+      <view class="cat-hero">
+        <image class="cat-image" src="../../../assets/cat-lxh.png" mode="aspectFit" />
+        <view class="cat-hero-text">
+          <text class="cat-hero-title">小黑正在为你挑好物</text>
+          <text class="cat-hero-subtitle">现在还没有可兑换的商品喵</text>
+        </view>
+      </view>
       <text class="empty-desc">稍后再来看看吧</text>
     </view>
 
@@ -50,7 +60,7 @@
         data-id="{{item.id}}"
       >
         <view class="product-image-wrapper">
-          <image class="product-image" src="{{item.imageUrl || '/images/default-product.png'}}" mode="aspectFill"></image>
+          <image class="product-image" src="{{item.imageUrl || '../../../assets/cat-lxh.png'}}" mode="aspectFill"></image>
           <view class="stock-tag" wx:if="{{item.stock !== null && item.stock !== undefined}}">
             <text wx:if="{{item.stock > 0}}">库存 {{item.stock}}</text>
             <text wx:else>已兑完</text>

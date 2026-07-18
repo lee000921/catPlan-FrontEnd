@@ -1,208 +1,123 @@
-const app = getApp();
+const {
+  deleteTaskSheet,
+  getTaskSheet,
+  syncTaskSheet,
+} = require('../../services/taskSheets');
+const { getErrorMessage } = require('../../utils/request');
+const { getSession } = require('../../utils/session');
 
 Page({
   data: {
-    backendBase: '',
-    openid: '',
     sheetId: null,
-    
-    // 任务单数据
-    sheet: null,
-    tasks: [],
-    progress: null,
-    
-    // 状态
+    taskSheet: null,
     loading: true,
-    error: null
+    syncing: false,
+    canEdit: false,
+    statusMap: {
+      pending: '待开始',
+      in_progress: '进行中',
+      completed: '已完成',
+    },
   },
 
   onLoad(options) {
-    // 从全局配置获取后端地址
-    if (app && app.globalData && app.globalData.backendBase) {
-      this.setData({ backendBase: app.globalData.backendBase });
+    const sheetId = Number(options.id);
+    if (!Number.isInteger(sheetId) || sheetId <= 0) {
+      this.setData({ loading: false });
+      wx.showToast({ title: '任务单编号无效', icon: 'none' });
+      return;
     }
-    
-    // 从缓存获取用户信息
-    const openid = wx.getStorageSync('catplan_user_openid');
-    if (openid) {
-      this.setData({ openid });
-    }
-    
-    // 获取任务单 ID
-    if (options.id) {
-      this.setData({ sheetId: options.id });
-      this.loadSheetDetail();
-    } else {
-      this.setData({ 
-        error: '缺少任务单ID',
-        loading: false 
-      });
-    }
+    this.setData({ sheetId });
+    this.loadSheetDetail();
   },
 
   onShow() {
-    // 页面显示时刷新数据
-    if (this.data.sheetId) {
+    if (this.data.sheetId && !this.data.loading) {
       this.loadSheetDetail();
     }
   },
 
-  // 加载任务单详情
-  loadSheetDetail() {
-    if (!this.data.backendBase || !this.data.sheetId) {
-      return;
+  async loadSheetDetail() {
+    this.setData({ loading: true });
+    try {
+      const response = await getTaskSheet(this.data.sheetId);
+      const session = getSession();
+      const taskSheet = {
+        ...response.sheet,
+        tasks: response.tasks || [],
+        progress: Number(response.sheet.progress || 0),
+        total_tasks: Number(response.sheet.total_tasks || 0),
+        completed_tasks: Number(response.sheet.completed_tasks || 0),
+      };
+      this.setData({
+        taskSheet,
+        canEdit: Boolean(
+          session && response.sheet.applicant_openid === session.openid
+        ),
+      });
+      wx.setNavigationBarTitle({ title: taskSheet.title || '任务单详情' });
+    } catch (error) {
+      wx.showToast({ title: getErrorMessage(error), icon: 'none' });
+      this.setData({ taskSheet: null });
+    } finally {
+      this.setData({ loading: false });
+      wx.stopPullDownRefresh();
     }
-
-    this.setData({ loading: true, error: null });
-
-    wx.request({
-      url: `${this.data.backendBase}/api/task-sheets/${this.data.sheetId}`,
-      method: 'GET',
-      success: (res) => {
-        if (res.data && res.data.ok) {
-          this.setData({
-            sheet: res.data.sheet,
-            tasks: res.data.tasks || [],
-            progress: res.data.progress,
-            loading: false
-          });
-          
-          // 设置页面标题
-          wx.setNavigationBarTitle({
-            title: res.data.sheet.title || '任务单详情'
-          });
-        } else {
-          this.setData({
-            error: (res.data && res.data.error) || '加载失败' || '加载失败',
-            loading: false
-          });
-        }
-      },
-      fail: (err) => {
-        console.error('加载任务单详情失败', err);
-        this.setData({
-          error: '网络错误',
-          loading: false
-        });
-      }
-    });
   },
 
-  // 同步进度
-  onSyncProgress() {
-    wx.showLoading({ title: '同步中...' });
-    
-    wx.request({
-      url: `${this.data.backendBase}/api/task-sheets/${this.data.sheetId}/sync-progress`,
-      method: 'POST',
-      success: (res) => {
-        wx.hideLoading();
-        if (res.data && res.data.ok) {
-          this.setData({
-            sheet: res.data.sheet,
-            progress: res.data.progress
-          });
-          wx.showToast({
-            title: '已同步',
-            icon: 'success'
-          });
-        } else {
-          wx.showToast({
-            title: '同步失败',
-            icon: 'none'
-          });
-        }
-      },
-      fail: (err) => {
-        wx.hideLoading();
-        wx.showToast({
-          title: '网络错误',
-          icon: 'none'
-        });
-      }
-    });
+  async syncProgress() {
+    if (this.data.syncing || !this.data.canEdit) return;
+    this.setData({ syncing: true });
+    try {
+      await syncTaskSheet(this.data.sheetId);
+      await this.loadSheetDetail();
+      wx.showToast({ title: '进度已同步', icon: 'success' });
+    } catch (error) {
+      wx.showToast({ title: getErrorMessage(error), icon: 'none' });
+    } finally {
+      this.setData({ syncing: false });
+    }
   },
 
-  // 跳转到任务详情
-  onTaskTap(e) {
-    const taskId = e.currentTarget.dataset.taskId;
-    wx.navigateTo({
-      url: `/pages/task-detail/task-detail?id=${taskId}`
-    });
+  onTaskTap(event) {
+    const taskId = Number(event.currentTarget.dataset.id);
+    if (Number.isInteger(taskId)) {
+      wx.navigateTo({ url: `/pages/task-detail/task-detail?id=${taskId}` });
+    }
   },
 
-  // 删除任务单
+  addTask() {
+    wx.navigateTo({ url: '/pages/task-submit/task-submit' });
+  },
+
+  goToAddTask() {
+    this.addTask();
+  },
+
   onDeleteSheet() {
+    if (!this.data.canEdit) return;
     wx.showModal({
-      title: '确认删除',
-      content: '删除后无法恢复，确定要删除这个任务单吗？',
-      confirmColor: '#ff4d4f',
-      success: (res) => {
-        if (res.confirm) {
-          wx.showLoading({ title: '删除中...' });
-          
-          wx.request({
-            url: `${this.data.backendBase}/api/task-sheets/${this.data.sheetId}`,
-            method: 'DELETE',
-            success: (res) => {
-              wx.hideLoading();
-              if (res.data && res.data.ok) {
-                wx.showToast({
-                  title: '已删除',
-                  icon: 'success'
-                });
-                setTimeout(() => {
-                  wx.navigateBack();
-                }, 1500);
-              } else {
-                wx.showToast({
-                  title: '删除失败',
-                  icon: 'none'
-                });
-              }
-            },
-            fail: (err) => {
-              wx.hideLoading();
-              wx.showToast({
-                title: '网络错误',
-                icon: 'none'
-              });
-            }
-          });
+      title: '删除任务单',
+      content: '任务本身不会被删除，但任务单无法恢复。确定继续吗？',
+      confirmColor: '#d94b4b',
+      success: async result => {
+        if (!result.confirm) return;
+        try {
+          await deleteTaskSheet(this.data.sheetId);
+          wx.showToast({ title: '已删除', icon: 'success' });
+          setTimeout(() => wx.navigateBack(), 700);
+        } catch (error) {
+          wx.showToast({ title: getErrorMessage(error), icon: 'none' });
         }
-      }
+      },
     });
   },
 
-  // 格式化日期
-  formatDate(dateStr) {
-    if (!dateStr) return '';
-    return dateStr.substring(0, 10);
+  goBack() {
+    wx.navigateBack();
   },
 
-  // 获取状态文字
-  getStatusText(status) {
-    const statusMap = {
-      'pending': '待开始',
-      'in_progress': '进行中',
-      'completed': '已完成'
-    };
-    return statusMap[status] || status;
-  },
-
-  // 获取状态样式类
-  getStatusClass(status) {
-    const classMap = {
-      'pending': 'status-pending',
-      'in_progress': 'status-progress',
-      'completed': 'status-completed'
-    };
-    return classMap[status] || '';
-  },
-
-  // 下拉刷新
   onPullDownRefresh() {
     this.loadSheetDetail();
-    wx.stopPullDownRefresh();
-  }
+  },
 });

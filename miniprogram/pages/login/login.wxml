@@ -1,20 +1,20 @@
 <view class="container">
   <view class="card">
-    <image class="logo" src="/assets/logo.png" mode="aspectFit" wx:if="{{false}}" />
-    <view class="title">CatPlan 任务管理</view>
+    <view class="cat-hero">
+      <image class="cat-image" src="../../assets/cat-lxh.png" mode="aspectFit" />
+      <view class="cat-hero-text">
+        <text class="cat-hero-title">小黑在帮你记任务</text>
+        <text class="cat-hero-subtitle">每天一点点，碎片慢慢攒</text>
+      </view>
+    </view>
+
+    <image class="logo" src="../../assets/logo.png" mode="aspectFit" wx:if="{{false}}" />
+    <view class="title">CatPlan 任务计划</view>
     
-    <!-- 角色选择（仅在未登录时显示） -->
+    <!-- 角色由服务端账号配置决定，客户端不授予权限。 -->
     <view class="role-section" wx:if="{{!logged}}">
-      <view class="section-title">选择您的角色</view>
-      <radio-group class="role-group" bindchange="onRoleChange">
-        <view class="role-item" wx:for="{{roleOptions}}" wx:key="value">
-          <radio value="{{item.value}}" checked="{{item.value === selectedRole}}" />
-          <view class="role-info">
-            <view class="role-label">{{item.label}}</view>
-            <view class="role-desc">{{item.desc}}</view>
-          </view>
-        </view>
-      </radio-group>
+      <view class="section-title">安全登录</view>
+      <view class="role-desc">登录后将自动加载由管理员配置的账号权限</view>
     </view>
 
     <view class="profile" wx:if="{{logged}}">
@@ -23,7 +23,7 @@
     </view>
 
     <view class="actions">
-      <button class="login-btn" bindtap="onLoginTap" wx:if="{{!logged}}">微信一键登录</button>
+      <button class="login-btn" bindtap="onLoginTap" loading="{{submitting}}" disabled="{{submitting}}" wx:if="{{!logged}}">微信一键登录</button>
       <button class="logout-btn" bindtap="onLogout" wx:if="{{logged}}">退出登录</button>
     </view>
 

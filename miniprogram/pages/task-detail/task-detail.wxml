@@ -7,6 +7,11 @@
 
   <!-- 任务详情 -->
   <view wx:if="{{!loading && task}}" class="task-content">
+    <view class="page-header">
+      <text class="page-title">📋 任务详情</text>
+      <text class="page-subtitle">查看任务信息与审批进度</text>
+    </view>
+
     <!-- 标题卡片 -->
     <view class="card title-card status-{{task.status}}">
       <view class="title-row">
@@ -56,7 +61,7 @@
           <view class="info-content">
             <text class="info-label">创建时间</text>
             <text class="info-value">
-              {{task.created_at ? task.created_at.substring(0, 10) : '-'}}
+              {{task.createdDate}}
             </text>
           </view>
         </view>
@@ -93,7 +98,7 @@
             </view>
             <text wx:if="{{item.comment}}" class="approval-comment">{{item.comment}}</text>
             <text class="approval-date">
-              {{item.created_at ? item.created_at.substring(0, 16) : '-'}}
+              {{item.createdDate}}
             </text>
           </view>
         </view>

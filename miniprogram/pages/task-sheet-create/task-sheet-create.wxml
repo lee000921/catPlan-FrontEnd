@@ -26,9 +26,9 @@
     </view>
     
     <view wx:if="{{todayTasks.length > 0}}" class="task-list">
-      <view wx:for="{{todayTasks}}" wx:key="id" class="task-item {{selectedTasks.includes(item.id) ? 'selected' : ''}}" bindtap="toggleTask" data-id="{{item.id}}">
+      <view wx:for="{{todayTasks}}" wx:key="id" class="task-item {{item.selected ? 'selected' : ''}}" bindtap="toggleTask" data-id="{{item.id}}">
         <view class="task-checkbox">
-          <view wx:if="{{selectedTasks.includes(item.id)}}" class="checked">✓</view>
+          <view wx:if="{{item.selected}}" class="checked">✓</view>
         </view>
         <view class="task-info">
           <view class="task-main">
@@ -76,23 +76,24 @@
       <text class="section-title">已添加任务 ({{selectedTasks.length + newTasks.length}})</text>
     </view>
     
-    <view wx:if="{{selectedTasks.length > 0}}" class="preview-list">
-      <view wx:for="{{selectedTasks}}" wx:key="*this" class="preview-item">
+    <view wx:if="{{selectedTaskPreviews.length > 0}}" class="preview-list">
+      <view wx:for="{{selectedTaskPreviews}}" wx:key="id" class="preview-item">
         <text class="preview-icon">📋</text>
-        <text class="preview-title">{{getTaskTitle(item)}}</text>
+        <text class="preview-title">{{item.title}}</text>
       </view>
     </view>
 
     <view wx:if="{{newTasks.length > 0}}" class="preview-list">
-      <view wx:for="{{newTasks}}" wx:key="index" class="preview-item new">
+      <view wx:for="{{newTasks}}" wx:key="clientId" class="preview-item new">
         <text class="preview-icon">✨</text>
         <text class="preview-title">{{item.title}}</text>
         <text class="preview-points">{{item.points}} 碎片</text>
+        <text class="preview-remove" bindtap="removeNewTask" data-id="{{item.clientId}}">删除</text>
       </view>
     </view>
   </view>
 
-  <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting || (!formData.title && selectedTasks.length === 0 && newTasks.length === 0)}}">
+  <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting || (selectedTasks.length === 0 && newTasks.length === 0)}}">
     {{submitting ? '提交中...' : '提交任务单审核'}}
   </button>
 </view>

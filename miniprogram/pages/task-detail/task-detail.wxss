@@ -13,8 +13,28 @@
 /* 页面容器 */
 .container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f0f5ff 0%, #ffffff 100%);
-  padding-bottom: 40rpx;
+  background: linear-gradient(180deg, #fffaf5 0%, #fefcff 40%, #f5fbff 100%);
+  padding: 32rpx;
+  padding-bottom: 200rpx;
+}
+
+.page-header {
+  text-align: center;
+  padding-bottom: 24rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #262626;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #8c8c8c;
 }
 
 /* 加载状态 */
@@ -47,7 +67,7 @@
 
 /* 任务内容区域 */
 .task-content {
-  padding: 32rpx 24rpx;
+  padding-top: 24rpx;
 }
 
 /* 卡片通用样式 */

@@ -10,32 +10,31 @@
     "pages/shop/exchange/exchange",
     "pages/shop/history/history",
     "pages/task-sheet-create/task-sheet-create",
-    "pages/task-sheet-detail/task-sheet-detail",
-    "pages/periodic-task-create/periodic-task-create"
+    "pages/task-sheet-detail/task-sheet-detail"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#1890ff",
+    "navigationBarBackgroundColor": "#222428",
     "navigationBarTitleText": "CatPlan",
     "navigationBarTextStyle": "white"
   },
   "tabBar": {
-    "color": "#8c8c8c",
-    "selectedColor": "#1890ff",
-    "backgroundColor": "#fff",
+    "color": "#a0a0a0",
+    "selectedColor": "#95de64",
+    "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/tasks/tasks",
-        "text": "任务"
+        "text": "📋 任务"
       },
       {
         "pagePath": "pages/signin/signin",
-        "text": "签到"
+        "text": "🐾 签到"
       },
       {
         "pagePath": "pages/shop/list/list",
-        "text": "商城"
+        "text": "🎁 商城"
       }
     ]
   }

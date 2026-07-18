@@ -2,31 +2,37 @@
 /* 页面容器 */
 .container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f5f7fa 0%, #ffffff 100%);
-  padding-bottom: 120rpx;
+  background: linear-gradient(180deg, #fffaf5 0%, #fefcff 40%, #f5fbff 100%);
+  padding: 32rpx;
+  padding-bottom: 200rpx;
 }
 
-/* 顶部装饰 */
-.top-decoration {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 200rpx;
-  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
-  border-radius: 0 0 40rpx 40rpx;
-  z-index: 0;
+.page-header {
+  text-align: center;
+  padding-bottom: 24rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #262626;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #8c8c8c;
 }
 
 /* 用户卡片 */
 .user-card {
-  position: relative;
-  z-index: 10;
-  margin: 24rpx;
-  background: rgba(255, 255, 255, 0.95);
+  margin-top: 16rpx;
+  background: rgba(255, 255, 255, 0.96);
   border-radius: 24rpx;
   padding: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10rpx 34rpx rgba(0, 0, 0, 0.12);
 }
 
 .user-header {
@@ -46,7 +52,7 @@
   height: 80rpx;
   border-radius: 50%;
   border: 4rpx solid #fff;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.18);
 }
 
 .user-info-text {
@@ -62,7 +68,7 @@
 
 .user-role {
   font-size: 24rpx;
-  color: #8c8c8c;
+  color: #bfbfbf;
   margin-top: 4rpx;
 }
 
@@ -83,24 +89,22 @@
 }
 
 .role-switch-btn {
-  background: #e6f7ff;
-  color: #1890ff;
+  background: #f0fffb;
+  color: #5cdbd3;
 }
 
 .logout-btn {
-  background: #fff1f0;
-  color: #ff4d4f;
+  background: #2f3442;
+  color: #fefefe;
 }
 
 /* 统计卡片 */
 .stats-card {
-  position: relative;
-  z-index: 10;
-  margin: 24rpx;
+  margin-top: 24rpx;
   background: #fff;
   border-radius: 24rpx;
   padding: 32rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10rpx 34rpx rgba(0, 0, 0, 0.1);
 }
 
 .stats-header {
@@ -118,7 +122,7 @@
 
 .stats-subtitle {
   font-size: 24rpx;
-  color: #8c8c8c;
+  color: #a0a0a0;
 }
 
 .stats-grid {
@@ -132,7 +136,7 @@
   flex-direction: column;
   align-items: center;
   padding: 16rpx;
-  background: #f5f7fa;
+  background: #fdfbff;
   border-radius: 16rpx;
 }
 
@@ -144,7 +148,7 @@
 .stat-number {
   font-size: 36rpx;
   font-weight: 600;
-  color: #1890ff;
+  color: #5cdbd3;
 }
 
 .stat-label {
@@ -155,9 +159,7 @@
 
 /* 审批者视图切换 */
 .view-switcher {
-  position: relative;
-  z-index: 10;
-  margin: 0 24rpx 24rpx;
+  margin: 24rpx 0;
 }
 
 .switcher-tabs {
@@ -165,7 +167,7 @@
   background: #fff;
   border-radius: 16rpx;
   padding: 8rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.1);
 }
 
 .tab-item {
@@ -177,13 +179,13 @@
   padding: 16rpx;
   border-radius: 12rpx;
   font-size: 26rpx;
-  color: #8c8c8c;
+  color: #a0a0a0;
   position: relative;
 }
 
 .tab-item.active {
-  background: #e6f7ff;
-  color: #1890ff;
+  background: #f0fffb;
+  color: #5cdbd3;
   font-weight: 600;
 }
 
@@ -191,7 +193,7 @@
   position: absolute;
   top: 8rpx;
   right: 8rpx;
-  background: #ff4d4f;
+  background: #fa8c16;
   color: #fff;
   font-size: 20rpx;
   padding: 2rpx 8rpx;
@@ -202,8 +204,7 @@
 
 /* 任务列表 */
 .task-scroll {
-  height: calc(100vh - 400rpx);
-  padding: 0 24rpx;
+  height: calc(100vh - 420rpx);
 }
 
 .task-list {
@@ -214,13 +215,13 @@
 }
 
 .task-card {
-  width: 100%;
-  max-width: 700rpx;
+  width: 92%;
+  max-width: 640rpx;
   background: #fff;
   border-radius: 24rpx;
   margin-bottom: 24rpx;
   padding: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10rpx 34rpx rgba(0, 0, 0, 0.12);
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
@@ -232,7 +233,7 @@
 }
 
 .task-card.approval-view {
-  border-left: 6rpx solid #1890ff;
+  border-left: 6rpx solid #5cdbd3;
 }
 
 /* 状态指示条 */
@@ -245,19 +246,19 @@
 }
 
 .status-indicator.status-pending {
-  background: linear-gradient(90deg, #faad14, #ffc53d);
+  background: linear-gradient(90deg, #ffd666, #ffa940);
 }
 
 .status-indicator.status-approved {
-  background: linear-gradient(90deg, #1890ff, #40a9ff);
+  background: linear-gradient(90deg, #95de64, #5cdbd3);
 }
 
 .status-indicator.status-rejected {
-  background: linear-gradient(90deg, #ff4d4f, #ff7875);
+  background: linear-gradient(90deg, #ff7875, #ff9c6e);
 }
 
 .status-indicator.status-completed {
-  background: linear-gradient(90deg, #52c41a, #73d13d);
+  background: linear-gradient(90deg, #b7eb8f, #95de64);
 }
 
 /* 任务头部 */
@@ -299,8 +300,8 @@
   padding: 8rpx 16rpx;
   border-radius: 20rpx;
   font-size: 24rpx;
-  background: #f5f7fa;
-  color: #8c8c8c;
+  background: #fdfbff;
+  color: #a0a0a0;
 }
 
 .status-icon {
@@ -325,7 +326,7 @@
 
 /* 审批信息 */
 .approval-info {
-  background: #f5f7fa;
+  background: #fdfbff;
   border-radius: 12rpx;
   padding: 16rpx;
   margin-bottom: 16rpx;
@@ -350,13 +351,13 @@
 }
 
 .approval-status-badge.approved {
-  background: #e6f7ff;
-  color: #1890ff;
+  background: #f0fffb;
+  color: #5cdbd3;
 }
 
 .approval-status-badge.rejected {
-  background: #fff1f0;
-  color: #ff4d4f;
+  background: #fff2e8;
+  color: #ff7a45;
 }
 
 .approval-comment {
@@ -400,7 +401,7 @@
   align-items: center;
   gap: 8rpx;
   font-size: 24rpx;
-  color: #1890ff;
+  color: #5cdbd3;
 }
 
 .action-arrow {
@@ -420,7 +421,7 @@
   width: 60rpx;
   height: 60rpx;
   border: 4rpx solid #f0f0f0;
-  border-top-color: #1890ff;
+  border-top-color: #5cdbd3;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -465,7 +466,7 @@
   height: 40rpx;
 }
 
-/* FAB 悬浮按钮 */
+/* FAB 悬浮按钮（右下角两个操作按钮） */
 .fab-container {
   position: fixed;
   bottom: 80rpx;
@@ -473,28 +474,10 @@
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 16rpx;
 }
 
-.fab-main {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
-  box-shadow: 0 8rpx 32rpx rgba(24, 144, 255, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  padding: 0;
-}
-
-.fab-icon {
-  font-size: 56rpx;
-}
-
-/* 扩展按钮组 - 始终显示 */
 .fab-extended {
   display: flex;
   flex-direction: column;
@@ -505,18 +488,19 @@
 .fab-ext-btn {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  background: #ffffff;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f0fffb 100%);
   border-radius: 32rpx;
   padding: 16rpx 24rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
   border: none;
   gap: 12rpx;
   white-space: nowrap;
+  width: 260rpx;
 }
 
 .fab-ext-btn:active {
-  background: #f0f0f0;
+  background: #e6fffb;
   transform: scale(0.95);
 }
 
@@ -528,16 +512,4 @@
   font-size: 26rpx;
   color: #262626;
   font-weight: 500;
-}
-
-.fab-ripple {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background: rgba(24, 144, 255, 0.3);
-  transform: scale(0);
-  z-index: -1;
 }
