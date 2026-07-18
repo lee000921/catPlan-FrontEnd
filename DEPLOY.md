@@ -3,7 +3,7 @@
 ## 前置条件
 
 1. `project.config.json` 中配置正确的 AppID。
-2. `miniprogram/app.ts` 中配置生产后端 HTTPS 域名。
+2. `src/app.ts` 中配置生产后端 HTTPS 域名。
 3. 在微信公众平台将该域名加入 request 合法域名。
 4. 从微信公众平台下载新的代码上传密钥，保存为项目根目录 `private.key`。
 5. 确认 `private.key` 未被 Git 跟踪。

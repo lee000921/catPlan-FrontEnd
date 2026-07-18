@@ -3,19 +3,19 @@
     <text class="page-title">📋 任务中心</text>
     <text class="page-subtitle">查看任务进度，创建或审批任务</text>
   </view>
-  
-  <!-- 用户信息卡片 -->
-  <view class="user-card" wx:if="{{userInfo}}">
+
+  <view class="user-card" wx:if="{{userInfo}}" bindtap="onOpenProfile">
     <view class="user-header">
       <view class="user-avatar-section">
-        <image class="user-avatar" src="{{userInfo.avatarUrl}}"></image>
+        <image class="user-avatar" src="{{userInfo.avatarUrl || '../../assets/cat-lxh.png'}}"></image>
         <view class="user-info-text">
-          <text class="user-name">{{userInfo.nickName}}</text>
+          <text class="user-name">{{userInfo.nickName || 'CatPlan 用户'}}</text>
           <text class="user-role">{{roleLabel}}</text>
+          <text class="user-points">💎 {{points}} 碎片 · 查看明细</text>
         </view>
       </view>
       <view class="user-actions">
-        <button class="logout-btn" bindtap="onLogout">
+        <button class="logout-btn" catchtap="onLogout">
           <text class="logout-icon">🚪</text>
           <text class="logout-text">退出</text>
         </button>
@@ -23,7 +23,6 @@
     </view>
   </view>
 
-  <!-- 统计卡片 -->
   <view class="stats-card">
     <view class="stats-header">
       <text class="stats-title">任务统计</text>
@@ -53,7 +52,6 @@
     </view>
   </view>
 
-  <!-- 双角色用户可在自己的任务与审批队列之间切换。 -->
   <view class="view-switcher" wx:if="{{canApprove}}">
     <view class="switcher-tabs">
       <view wx:if="{{canCreate}}" class="tab-item {{activeView === 'mine' ? 'active' : ''}}" bindtap="onSwitchView" data-view="mine">
@@ -72,15 +70,12 @@
     </view>
   </view>
 
-  <!-- 任务列表 -->
   <scroll-view class="task-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <!-- 加载状态 -->
     <view wx:if="{{loading}}" class="loading-container">
       <view class="loading-spinner"></view>
       <text class="loading-text">加载中...</text>
     </view>
-    
-    <!-- 空状态 -->
+
     <view wx:if="{{!loading && tasks.length === 0}}" class="empty-container">
       <view class="cat-hero">
         <image class="cat-image" src="../../assets/cat-lxh.png" mode="aspectFit" />
@@ -91,14 +86,11 @@
       </view>
       <text class="empty-subtitle">{{showMyApprovals ? '还没有审批过任何任务' : '还没有任务记录'}}</text>
     </view>
-    
-    <!-- 任务列表 -->
+
     <view class="task-list">
       <view wx:for="{{tasks}}" wx:key="id" class="task-card {{showMyApprovals ? 'approval-view' : ''}}" bindtap="onTaskTap" data-task-id="{{item.id}}">
-        <!-- 任务状态指示条 -->
         <view class="status-indicator status-{{item.status}}"></view>
-        
-        <!-- 任务头部 -->
+
         <view class="task-header">
           <view class="task-title-section">
             <text class="task-title">{{item.title}}</text>
@@ -116,13 +108,11 @@
             </text>
           </view>
         </view>
-        
-        <!-- 任务描述 -->
+
         <view class="task-desc" wx:if="{{item.description}}">
           <text class="desc-text">{{item.description}}</text>
         </view>
-        
-        <!-- 审批信息（仅在"我的审批"视图中显示） -->
+
         <view class="approval-info" wx:if="{{showMyApprovals && item.approval_date}}">
           <view class="approval-meta">
             <text class="approval-date">审批时间：{{item.approvalDate}}</text>
@@ -134,8 +124,7 @@
             {{item.approval_comment}}
           </view>
         </view>
-        
-        <!-- 任务底部信息 -->
+
         <view class="task-footer">
           <view class="task-points">
             <text class="points-icon">💎</text>
@@ -149,14 +138,11 @@
         </view>
       </view>
     </view>
-    
-    <!-- 底部安全区域 -->
+
     <view class="safe-bottom"></view>
   </scroll-view>
 
-  <!-- 悬浮创建按钮组（仅 A 类用户可见） -->
   <view class="fab-container" wx:if="{{canCreate}}">
-    <!-- 扩展按钮（仅保留两个入口：新建任务 / 新建任务单） -->
     <view class="fab-extended">
       <button class="fab-ext-btn" catchtap="onSubmitTask">
         <text class="ext-icon">📝</text>

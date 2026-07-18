@@ -8,7 +8,7 @@
 
 ```
 catPlan-Wechat/
-├── miniprogram/
+├── src/
 │   ├── pages/         # 页面
 │   ├── services/      # API 服务
 │   ├── utils/         # 工具函数

@@ -1,8 +1,10 @@
 const { listTasks } = require('../../services/tasks');
+const { getProfile } = require('../../services/user');
 const {
   clearSession,
   getSession,
   hasRole,
+  updateSession,
 } = require('../../utils/session');
 const { getErrorMessage } = require('../../utils/request');
 
@@ -20,6 +22,7 @@ Page({
     userInfo: null,
     userType: 'A',
     roleLabel: '申请者',
+    points: 0,
     canCreate: true,
     canApprove: false,
     activeView: 'mine',
@@ -46,6 +49,27 @@ Page({
     const session = getSession();
     if (!session) return;
     this.loadTasks();
+    this.loadUserProfile();
+  },
+
+  async loadUserProfile() {
+    try {
+      const response = await getProfile();
+      const session = getSession();
+      const userInfo = response.user || session?.userInfo || null;
+      const userType = response.user_type || session?.userType || 'A';
+      if (session) updateSession({ userInfo, userType });
+      this.setData({
+        userInfo,
+        userType,
+        roleLabel: getRoleLabel(userType),
+        points: Number(response.points || 0),
+        canCreate: hasRole(getSession(), 'A'),
+        canApprove: hasRole(getSession(), 'B'),
+      });
+    } catch (_error) {
+      // 任务页仍可继续使用；统一请求层会处理登录过期。
+    }
   },
 
   async loadTasks() {
@@ -85,7 +109,7 @@ Page({
   },
 
   async onPullDownRefresh() {
-    await this.loadTasks();
+    await Promise.all([this.loadTasks(), this.loadUserProfile()]);
     wx.stopPullDownRefresh();
   },
 
@@ -125,6 +149,10 @@ Page({
         wx.reLaunch({ url: '/pages/login/login' });
       },
     });
+  },
+
+  onOpenProfile() {
+    wx.navigateTo({ url: '/pages/profile/profile' });
   },
 
   onCreateTaskSheet() {

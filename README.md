@@ -6,15 +6,15 @@ CatPlan 的微信小程序客户端，包含微信登录、任务创建/审批/�
 
 - 页面逻辑目前使用 JavaScript，API 边界和会话层使用 TypeScript。
 - 微信开发者工具负责 TypeScript 编译，配置见 `project.config.json`。
-- 所有网络请求只能经 `miniprogram/utils/request.ts` 发出。
-- 所有后端接口集中在 `miniprogram/services/`。
+- 所有网络请求只能经 `src/utils/request.ts` 发出。
+- 所有后端接口集中在 `src/services/`。
 - 登录状态只保存在 `catplan_session`；旧缓存键会在首次读取后兼容迁移。
 - 客户端不向业务接口发送 `openid` 或角色，身份与权限由服务端 Token 决定。
 
 ## 目录
 
 ```text
-miniprogram/
+src/
   app.ts                    应用入口与后端域名
   app.json                  页面与 TabBar
   pages/                    页面
@@ -35,7 +35,7 @@ npm install
 npm run check
 ```
 
-然后用微信开发者工具导入仓库根目录。后端地址在 `miniprogram/app.ts` 的 `backendBase` 中配置；正式域名还需要加入微信公众平台的 request 合法域名。
+然后用微信开发者工具导入仓库根目录。后端地址在 `src/app.ts` 的 `backendBase` 中配置；正式域名还需要加入微信公众平台的 request 合法域名。
 
 新增接口时：
 

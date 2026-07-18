@@ -10,7 +10,8 @@
     "pages/shop/exchange/exchange",
     "pages/shop/history/history",
     "pages/task-sheet-create/task-sheet-create",
-    "pages/task-sheet-detail/task-sheet-detail"
+    "pages/task-sheet-detail/task-sheet-detail",
+    "pages/profile/profile"
   ],
   "window": {
     "backgroundTextStyle": "light",

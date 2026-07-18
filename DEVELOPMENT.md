@@ -7,11 +7,11 @@ npm install
 npm run check
 ```
 
-使用微信开发者工具导入仓库根目录。项目根目录由 `project.config.json` 指向 `miniprogram/`。
+使用微信开发者工具导入仓库根目录。项目根目录由 `project.config.json` 指向 `src/`。
 
 ## 调用后端
 
-页面不得直接调用 `wx.request`。在 `miniprogram/services/` 中定义接口：
+页面不得直接调用 `wx.request`。在 `src/services/` 中定义接口：
 
 ```ts
 import { get } from '../utils/request';

@@ -72,6 +72,13 @@
   margin-top: 4rpx;
 }
 
+.user-points {
+  font-size: 24rpx;
+  color: #faad14;
+  margin-top: 4rpx;
+  font-weight: 500;
+}
+
 .user-actions {
   display: flex;
   gap: 12rpx;

@@ -1,0 +1,134 @@
+.profile-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
+  padding: 40rpx 30rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 6rpx solid #fff;
+}
+
+.info {
+  flex: 1;
+  margin-left: 30rpx;
+}
+
+.nickname {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: bold;
+  display: block;
+}
+
+.role {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 26rpx;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.points-box {
+  display: flex;
+  align-items: baseline;
+  margin-top: 16rpx;
+}
+
+.points-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 24rpx;
+  margin-right: 12rpx;
+}
+
+.points-value {
+  color: #fff;
+  font-size: 48rpx;
+  font-weight: bold;
+}
+
+.history-section {
+  margin: 20rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 60rpx 0;
+  color: #999;
+}
+
+.record-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.record-item:last-child {
+  border-bottom: none;
+}
+
+.record-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.record-reason {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.record-time {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+.record-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+.record-change {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.record-change.positive {
+  color: #52c41a;
+}
+
+.record-change.negative {
+  color: #ff4d4f;
+}
+
+.record-balance {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+.load-more {
+  text-align: center;
+  padding: 30rpx 0;
+  color: #1890ff;
+}
