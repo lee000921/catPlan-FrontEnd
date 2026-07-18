@@ -1,0 +1,182 @@
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 24rpx;
+  background: #f4f6f8;
+}
+
+.intro {
+  padding: 20rpx 8rpx 28rpx;
+}
+
+.intro-title {
+  display: block;
+  color: #222428;
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.intro-description {
+  display: block;
+  margin-top: 12rpx;
+  color: #6b7280;
+  font-size: 25rpx;
+  line-height: 1.6;
+}
+
+.form-card,
+.history-card {
+  padding: 28rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 6rpx 24rpx rgba(34, 36, 40, 0.05);
+}
+
+.field {
+  position: relative;
+  margin-bottom: 28rpx;
+}
+
+.label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #333;
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+.input,
+.textarea,
+.picker-value {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1rpx solid #dfe3e8;
+  border-radius: 12rpx;
+  background: #fafbfc;
+  color: #222428;
+  font-size: 27rpx;
+}
+
+.input,
+.picker-value {
+  height: 84rpx;
+  padding: 0 24rpx;
+  line-height: 84rpx;
+}
+
+.picker-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.picker-arrow {
+  color: #8c8c8c;
+}
+
+.textarea {
+  min-height: 220rpx;
+  padding: 20rpx 24rpx;
+  line-height: 1.55;
+}
+
+.textarea.compact {
+  min-height: 150rpx;
+}
+
+.counter {
+  position: absolute;
+  right: 16rpx;
+  bottom: 10rpx;
+  color: #b0b0b0;
+  font-size: 21rpx;
+}
+
+.submit-button {
+  margin-top: 8rpx;
+  border: none;
+  border-radius: 14rpx;
+  background: #222428;
+  color: #fff;
+  font-size: 29rpx;
+  font-weight: 600;
+}
+
+.submit-button::after {
+  border: none;
+}
+
+.history-card {
+  margin-top: 24rpx;
+}
+
+.history-title {
+  display: block;
+  margin-bottom: 18rpx;
+  color: #222428;
+  font-size: 31rpx;
+  font-weight: 700;
+}
+
+.empty {
+  padding: 42rpx 0;
+  color: #9ca3af;
+  font-size: 25rpx;
+  text-align: center;
+}
+
+.report {
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #edf0f2;
+}
+
+.report:last-child {
+  border-bottom: none;
+}
+
+.report-heading,
+.report-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.report-title {
+  max-width: 480rpx;
+  overflow: hidden;
+  color: #333;
+  font-size: 27rpx;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  padding: 6rpx 12rpx;
+  border-radius: 999rpx;
+  background: #eef2f7;
+  color: #52606d;
+  font-size: 21rpx;
+}
+
+.status-fixing {
+  background: #e6f4ff;
+  color: #1677ff;
+}
+
+.status-resolved,
+.status-closed {
+  background: #f0f9eb;
+  color: #389e0d;
+}
+
+.status-rejected {
+  background: #fff1f0;
+  color: #cf1322;
+}
+
+.report-meta {
+  margin-top: 12rpx;
+  color: #9ca3af;
+  font-size: 22rpx;
+}

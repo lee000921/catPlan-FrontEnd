@@ -90,6 +90,12 @@ Page({
     }
   },
 
+  openFeedback() {
+    wx.navigateTo({
+      url: '/pages/feedback/feedback?source=pages%2Fprofile%2Fprofile',
+    });
+  },
+
   loadMore() {
     if (this.data.hasMore && !this.data.loading) {
       this.loadPointsHistory();

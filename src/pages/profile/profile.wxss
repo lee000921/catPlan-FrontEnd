@@ -61,6 +61,40 @@
   padding: 20rpx;
 }
 
+.support-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20rpx;
+  padding: 28rpx 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 18rpx rgba(0, 0, 0, 0.04);
+}
+
+.support-copy {
+  display: flex;
+  flex-direction: column;
+}
+
+.support-title {
+  color: #222428;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.support-description {
+  margin-top: 8rpx;
+  color: #8c8c8c;
+  font-size: 24rpx;
+}
+
+.support-arrow {
+  color: #bfbfbf;
+  font-size: 48rpx;
+  line-height: 1;
+}
+
 .section-title {
   font-size: 32rpx;
   font-weight: bold;

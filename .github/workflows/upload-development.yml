@@ -1,0 +1,57 @@
+name: Upload Mini Program development version
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catplan-mini-program-upload
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    # The WeChat code-upload IP allowlist requires a runner with a stable
+    # public IP. Register the release host with these three labels.
+    runs-on:
+      - self-hosted
+      - linux
+      - catplan-release
+    timeout-minutes: 15
+    environment: mini-program-development
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run check
+
+      - name: Install upload key
+        shell: bash
+        env:
+          MINIPROGRAM_PRIVATE_KEY: ${{ secrets.MINIPROGRAM_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$MINIPROGRAM_PRIVATE_KEY"
+          printf '%s\n' "$MINIPROGRAM_PRIVATE_KEY" > private.key
+          chmod 600 private.key
+
+      - name: Upload development version
+        shell: bash
+        run: |
+          version="2.1.${GITHUB_RUN_NUMBER}"
+          description="反馈自动修复 ${GITHUB_SHA::7}"
+          npm run deploy -- --version "$version" --desc "$description"
+
+      - name: Remove upload key
+        if: always()
+        shell: bash
+        run: rm -f private.key

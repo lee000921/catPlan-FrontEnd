@@ -1,0 +1,117 @@
+<view class="page">
+  <view class="intro">
+    <text class="intro-title">告诉我们发生了什么</text>
+    <text class="intro-description">
+      描述越具体，定位和修复会越快。请不要填写密码、验证码等敏感信息。
+    </text>
+  </view>
+
+  <view class="form-card">
+    <view class="field">
+      <text class="label">反馈类型</text>
+      <picker
+        mode="selector"
+        range="{{categories}}"
+        range-key="label"
+        value="{{categoryIndex}}"
+        bindchange="onCategoryChange"
+      >
+        <view class="picker-value">
+          {{categories[categoryIndex].label}}
+          <text class="picker-arrow">⌄</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="label">简要标题 *</text>
+      <input
+        class="input"
+        maxlength="120"
+        placeholder="例如：任务完成后列表没有刷新"
+        value="{{form.title}}"
+        data-field="title"
+        bindinput="onFieldInput"
+      />
+      <text class="counter">{{form.title.length}}/120</text>
+    </view>
+
+    <view class="field">
+      <text class="label">详细描述 *</text>
+      <textarea
+        class="textarea"
+        maxlength="2000"
+        placeholder="问题在什么时候出现？对你的使用造成了什么影响？"
+        value="{{form.description}}"
+        data-field="description"
+        bindinput="onFieldInput"
+      />
+      <text class="counter">{{form.description.length}}/2000</text>
+    </view>
+
+    <view class="field">
+      <text class="label">复现步骤</text>
+      <textarea
+        class="textarea compact"
+        maxlength="2000"
+        placeholder="1. 打开…  2. 点击…  3. 出现…"
+        value="{{form.reproduction_steps}}"
+        data-field="reproduction_steps"
+        bindinput="onFieldInput"
+      />
+    </view>
+
+    <view class="field">
+      <text class="label">实际结果</text>
+      <textarea
+        class="textarea compact"
+        maxlength="1000"
+        placeholder="实际看到了什么"
+        value="{{form.actual_result}}"
+        data-field="actual_result"
+        bindinput="onFieldInput"
+      />
+    </view>
+
+    <view class="field">
+      <text class="label">期望结果</text>
+      <textarea
+        class="textarea compact"
+        maxlength="1000"
+        placeholder="你原本希望发生什么"
+        value="{{form.expected_result}}"
+        data-field="expected_result"
+        bindinput="onFieldInput"
+      />
+    </view>
+
+    <button
+      class="submit-button"
+      loading="{{submitting}}"
+      disabled="{{submitting}}"
+      bindtap="submitFeedback"
+    >
+      {{submitting ? '正在提交…' : '提交反馈'}}
+    </button>
+  </view>
+
+  <view class="history-card">
+    <text class="history-title">我的反馈</text>
+    <view wx:if="{{loading && reports.length === 0}}" class="empty">加载中…</view>
+    <view wx:elif="{{!loading && reports.length === 0}}" class="empty">
+      还没有提交过反馈
+    </view>
+    <view wx:else class="report-list">
+      <view class="report" wx:for="{{reports}}" wx:key="id">
+        <view class="report-heading">
+          <text class="report-title">#{{item.id}} {{item.title}}</text>
+          <text class="status status-{{item.status}}">{{item.statusLabel}}</text>
+        </view>
+        <view class="report-meta">
+          <text>{{item.categoryLabel}}</text>
+          <text>{{item.createdDate}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

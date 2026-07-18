@@ -11,6 +11,14 @@
     </view>
   </view>
 
+  <view class="support-section" bindtap="openFeedback">
+    <view class="support-copy">
+      <text class="support-title">问题反馈</text>
+      <text class="support-description">遇到故障或有改进建议，直接告诉我们</text>
+    </view>
+    <text class="support-arrow">›</text>
+  </view>
+
   <view class="history-section">
     <text class="section-title">积分明细</text>
 

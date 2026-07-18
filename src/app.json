@@ -11,7 +11,8 @@
     "pages/shop/history/history",
     "pages/task-sheet-create/task-sheet-create",
     "pages/task-sheet-detail/task-sheet-detail",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/feedback/feedback"
   ],
   "window": {
     "backgroundTextStyle": "light",
