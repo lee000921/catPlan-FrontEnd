@@ -12,7 +12,7 @@ const { execSync } = require('child_process');
 
 // 项目配置
 const PROJECT_PATH = path.resolve(__dirname);
-const MINIPROGRAM_ROOT = path.join(PROJECT_PATH, 'miniprogram');
+const MINIPROGRAM_ROOT = path.join(PROJECT_PATH, 'src');
 const PRIVATE_KEY_PATH = path.join(PROJECT_PATH, 'private.key');
 const VERSION_FILE = path.join(PROJECT_PATH, 'deploy-version.json');
 
@@ -127,7 +127,7 @@ async function deploy(options = {}) {
   console.log(`📝 Git 提交：${gitInfo.commitHash} - ${gitInfo.commitMsg}`);
   
   try {
-    const project = await ci.Project({
+    const project = new ci.Project({
       projectPath: MINIPROGRAM_ROOT,
       privateKey,
       appid: APPID,
