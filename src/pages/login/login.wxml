@@ -13,8 +13,9 @@
     
     <!-- 角色由服务端账号配置决定，客户端不授予权限。 -->
     <view class="role-section" wx:if="{{!logged}}">
-      <view class="section-title">安全登录</view>
-      <view class="role-desc">登录后将自动加载由管理员配置的账号权限</view>
+      <view class="section-title">按需登录</view>
+      <view class="role-desc">你可以先浏览任务、签到和积分商城，再决定是否登录。</view>
+      <view class="privacy-note">登录不会申请手机号、头像或昵称。</view>
     </view>
 
     <view class="profile" wx:if="{{logged}}">
@@ -23,7 +24,8 @@
     </view>
 
     <view class="actions">
-      <button class="login-btn" bindtap="onLoginTap" loading="{{submitting}}" disabled="{{submitting}}" wx:if="{{!logged}}">微信一键登录</button>
+      <button class="browse-btn" bindtap="onBrowseTap" wx:if="{{!logged}}">先浏览功能</button>
+      <button class="login-btn" bindtap="onLoginTap" loading="{{submitting}}" disabled="{{submitting}}" wx:if="{{!logged}}">进入 CatPlan</button>
       <button class="logout-btn" bindtap="onLogout" wx:if="{{logged}}">退出登录</button>
     </view>
 

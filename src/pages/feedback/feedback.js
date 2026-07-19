@@ -22,13 +22,7 @@ const CATEGORY_LABELS = {
 };
 
 function runtimeContext() {
-  let system = {};
   let miniProgram = {};
-  try {
-    system = wx.getSystemInfoSync();
-  } catch (_error) {
-    system = {};
-  }
   try {
     miniProgram = wx.getAccountInfoSync().miniProgram || {};
   } catch (_error) {
@@ -37,14 +31,6 @@ function runtimeContext() {
 
   return {
     appVersion: miniProgram.version || miniProgram.envVersion || 'unknown',
-    context: {
-      platform: system.platform || '',
-      system: system.system || '',
-      model: system.model || '',
-      SDKVersion: system.SDKVersion || '',
-      version: system.version || '',
-      envVersion: miniProgram.envVersion || '',
-    },
   };
 }
 
@@ -141,7 +127,6 @@ Page({
         actual_result: form.actual_result.trim(),
         page_path: sourcePage || 'pages/feedback/feedback',
         app_version: runtime.appVersion,
-        client_context: runtime.context,
       });
       wx.showToast({
         title: `已提交 #${response.feedback.id}`,

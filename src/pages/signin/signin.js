@@ -2,6 +2,7 @@ const { checkin, getSigninHistory } = require('../../services/signin');
 const { getProfile } = require('../../services/user');
 const { ApiError, getErrorMessage } = require('../../utils/request');
 const { getSession, updateSession } = require('../../utils/session');
+const { promptGuestLogin } = require('../../utils/guest');
 
 const pad = value => String(value).padStart(2, '0');
 
@@ -30,6 +31,7 @@ Page({
     },
     showPointsAnimation: false,
     animationPoints: 0,
+    guestMode: false,
   },
 
   onLoad() {
@@ -39,16 +41,40 @@ Page({
       year: now.getFullYear(),
       month: now.getMonth() + 1,
       userInfo: session?.userInfo || null,
+      guestMode: !session,
     });
-    this.buildCalendar();
+    if (session) this.buildCalendar();
+    else this.setGuestExperience();
   },
 
   onShow() {
     if (!getSession()) {
-      wx.reLaunch({ url: '/pages/login/login' });
+      this.setGuestExperience();
       return;
     }
+    this.setData({ guestMode: false });
     this.refreshPage();
+  },
+
+  setGuestExperience() {
+    const { year, month } = this.data;
+    const totalDays = new Date(year, month, 0).getDate();
+    const sampleDays = [2, 5, 8].filter(day => day <= totalDays);
+    const signedDaysSet = {};
+    sampleDays.forEach(day => {
+      signedDaysSet[`${year}-${pad(month)}-${pad(day)}`] = true;
+    });
+    this.setData({
+      guestMode: true,
+      userInfo: null,
+      signedDaysSet,
+      signedCount: sampleDays.length,
+      consecutiveCount: 3,
+      signedToday: false,
+      userLevel: 1,
+      'stats.totalPoints': 24,
+    });
+    this.buildCalendar();
   },
 
   async refreshPage() {
@@ -124,6 +150,10 @@ Page({
 
   async onCheckin() {
     if (this.data.signedToday || this.data.checking) return;
+    if (this.data.guestMode) {
+      promptGuestLogin('签到体验无需授权。登录后才能记录真实签到并领取积分。');
+      return;
+    }
 
     this.setData({ checking: true });
     try {
@@ -157,8 +187,11 @@ Page({
       year -= 1;
     }
     this.setData({ year, month, signedDaysSet: {} });
-    this.buildCalendar();
-    this.fetchHistory();
+    if (this.data.guestMode) this.setGuestExperience();
+    else {
+      this.buildCalendar();
+      this.fetchHistory();
+    }
   },
 
   onNextMonth() {
@@ -169,8 +202,11 @@ Page({
       year += 1;
     }
     this.setData({ year, month, signedDaysSet: {} });
-    this.buildCalendar();
-    this.fetchHistory();
+    if (this.data.guestMode) this.setGuestExperience();
+    else {
+      this.buildCalendar();
+      this.fetchHistory();
+    }
   },
 
   onDayTap(event) {
@@ -189,5 +225,9 @@ Page({
       animationPoints: pointsEarned,
     });
     setTimeout(() => this.setData({ showPointsAnimation: false }), 2000);
+  },
+
+  onLogin() {
+    wx.navigateTo({ url: '/pages/login/login' });
   },
 });

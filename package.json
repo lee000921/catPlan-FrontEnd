@@ -4,7 +4,8 @@
   "description": "catPlan 微信小程序",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck",
+    "test:audit": "node --test test/audit-compliance.test.js",
+    "check": "npm run typecheck && npm run test:audit",
     "deploy": "node deploy.js",
     "deploy:preview": "node deploy.js --preview"
   },

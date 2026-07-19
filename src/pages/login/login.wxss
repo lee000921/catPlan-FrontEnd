@@ -133,6 +133,17 @@
   line-height: 1.5;
 }
 
+.privacy-note {
+  margin-top: 16rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 14rpx;
+  background: #f6ffed;
+  color: #389e0d;
+  font-size: 23rpx;
+  line-height: 1.5;
+  text-align: left;
+}
+
 .profile {
   display: flex;
   flex-direction: column;
@@ -172,6 +183,22 @@
   transition: all 0.3s ease;
   border: none;
   letter-spacing: 2rpx;
+}
+
+.browse-btn {
+  width: 100%;
+  margin-bottom: 20rpx;
+  padding: 24rpx 0;
+  border: 2rpx solid #5cdbd3;
+  border-radius: 48rpx;
+  background: #fff;
+  color: #08979c;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.browse-btn::after {
+  border: none;
 }
 
 .login-btn:active {

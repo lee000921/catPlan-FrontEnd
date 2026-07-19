@@ -5,6 +5,14 @@
     <text class="page-subtitle">用任务碎片换点小奖励</text>
   </view>
 
+  <view class="guest-banner" wx:if="{{guestMode}}">
+    <view class="guest-copy">
+      <text class="guest-title">免登录浏览商城</text>
+      <text class="guest-desc">下方为示例商品；登录后可查看真实库存和积分。</text>
+    </view>
+    <button class="guest-login-btn" bindtap="onLogin">登录使用</button>
+  </view>
+
   <!-- 顶部用户信息栏 -->
   <view class="user-bar">
     <view class="user-info">
@@ -13,8 +21,9 @@
         <view class="avatar-placeholder" wx:else>{{userInitial}}</view>
       </view>
       <view class="user-detail">
-        <text class="nickname">{{userInfo.nickName || '用户'}}</text>
+        <text class="nickname">{{guestMode ? '体验访客' : (userInfo.nickName || 'CatPlan 用户')}}</text>
         <view class="user-tags">
+          <text class="user-type-tag" wx:if="{{guestMode}}">免登录体验</text>
           <text class="user-type-tag" wx:if="{{isTypeA}}">A 类用户</text>
         </view>
       </view>
@@ -76,11 +85,19 @@
               <text class="points-value">{{item.points}}</text>
               <text class="points-unit">积分</text>
             </view>
+            <view
+              class="exchange-btn-wrapper"
+              catchtap="exchangeNow"
+              data-id="{{item.id}}"
+              wx:if="{{guestMode}}"
+            >
+              <text class="exchange-btn-text">登录兑换</text>
+            </view>
             <view 
               class="exchange-btn-wrapper"
               catchtap="exchangeNow"
               data-id="{{item.id}}"
-              wx:if="{{isTypeA && item.stock > 0}}"
+              wx:elif="{{isTypeA && item.stock > 0}}"
             >
               <text class="exchange-btn-text">兑换</text>
             </view>
@@ -106,7 +123,11 @@
   </view>
 
   <!-- 底部提示 -->
-  <view class="bottom-tip" wx:if="{{!isTypeA}}">
+  <view class="bottom-tip" wx:if="{{guestMode}}">
+    <text class="tip-icon">ℹ️</text>
+    <text>当前展示体验数据，浏览不需要授权个人信息</text>
+  </view>
+  <view class="bottom-tip" wx:elif="{{!isTypeA}}">
     <text class="tip-icon">ℹ️</text>
     <text>仅 A 类用户（申请者）可兑换</text>
   </view>

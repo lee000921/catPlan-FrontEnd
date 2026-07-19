@@ -27,6 +27,55 @@
   color: #8c8c8c;
 }
 
+.guest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  width: 100%;
+  max-width: 686rpx;
+  box-sizing: border-box;
+  margin: 0 auto 20rpx;
+  padding: 24rpx;
+  border: 2rpx solid #b7eb8f;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #f6ffed, #e6fffb);
+}
+
+.guest-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.guest-title {
+  color: #237804;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.guest-desc {
+  margin-top: 6rpx;
+  color: #52734d;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.guest-login-btn {
+  margin: 0;
+  padding: 0 22rpx;
+  border: none;
+  border-radius: 28rpx;
+  background: #52c41a;
+  color: #fff;
+  font-size: 24rpx;
+  line-height: 60rpx;
+}
+
+.guest-login-btn::after {
+  border: none;
+}
+
 /* 用户信息卡片 */
 .user-card {
   width: 100%;

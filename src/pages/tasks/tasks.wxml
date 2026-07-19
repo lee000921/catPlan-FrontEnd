@@ -4,6 +4,14 @@
     <text class="page-subtitle">查看任务进度，创建或审批任务</text>
   </view>
 
+  <view class="guest-banner" wx:if="{{guestMode}}">
+    <view class="guest-copy">
+      <text class="guest-title">当前为免登录体验模式</text>
+      <text class="guest-desc">下方是示例任务，可继续浏览签到和积分商城。</text>
+    </view>
+    <button class="guest-login-btn" bindtap="onLogin">登录使用</button>
+  </view>
+
   <view class="user-card" wx:if="{{userInfo}}" bindtap="onOpenProfile">
     <view class="user-header">
       <view class="user-avatar-section">
@@ -26,7 +34,7 @@
   <view class="stats-card">
     <view class="stats-header">
       <text class="stats-title">任务统计</text>
-      <text class="stats-subtitle">实时更新</text>
+      <text class="stats-subtitle">{{guestMode ? '体验数据' : '实时更新'}}</text>
     </view>
     <view class="stats-grid">
       <view class="stat-box">

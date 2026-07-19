@@ -7,11 +7,42 @@ const {
   updateSession,
 } = require('../../utils/session');
 const { getErrorMessage } = require('../../utils/request');
+const { promptGuestLogin } = require('../../utils/guest');
 
 function getRoleLabel(userType) {
   if (userType === 'AB') return '申请者 / 审批者';
   if (userType === 'B') return '审批者';
   return '申请者';
+}
+
+function demoTasks() {
+  const today = new Date().toISOString();
+  return [
+    {
+      id: 'demo-1',
+      title: '阅读 30 分钟',
+      description: '完成一个专注小目标，提交后等待审批。',
+      status: 'pending',
+      points: 10,
+      created_at: today,
+    },
+    {
+      id: 'demo-2',
+      title: '整理今天的任务',
+      description: '审批通过后即可执行并领取积分。',
+      status: 'approved',
+      points: 8,
+      created_at: today,
+    },
+    {
+      id: 'demo-3',
+      title: '陪小黑玩一会儿',
+      description: '完成任务后，积分会进入商城余额。',
+      status: 'completed',
+      points: 6,
+      created_at: today,
+    },
+  ];
 }
 
 Page({
@@ -27,12 +58,13 @@ Page({
     canApprove: false,
     activeView: 'mine',
     showMyApprovals: false,
+    guestMode: false,
   },
 
   onLoad() {
     const session = getSession();
     if (!session) {
-      wx.reLaunch({ url: '/pages/login/login' });
+      this.setGuestExperience();
       return;
     }
     this.setData({
@@ -42,14 +74,46 @@ Page({
       canCreate: hasRole(session, 'A'),
       canApprove: hasRole(session, 'B'),
       activeView: session.userType === 'B' ? 'pending' : 'mine',
+      guestMode: false,
     });
   },
 
   onShow() {
     const session = getSession();
-    if (!session) return;
+    if (!session) {
+      this.setGuestExperience();
+      return;
+    }
+    this.setData({ guestMode: false });
     this.loadTasks();
     this.loadUserProfile();
+  },
+
+  setGuestExperience() {
+    const tasks = demoTasks().map(task => ({
+      ...task,
+      createdDate: String(task.created_at).slice(5, 10),
+      approvalDate: '',
+    }));
+    this.setData({
+      tasks,
+      stats: {
+        total: tasks.length,
+        pending: tasks.filter(task => task.status === 'pending').length,
+        approved: tasks.filter(task => task.status === 'approved').length,
+        completed: tasks.filter(task => task.status === 'completed').length,
+      },
+      loading: false,
+      userInfo: null,
+      userType: 'A',
+      roleLabel: '体验访客',
+      points: 24,
+      canCreate: true,
+      canApprove: false,
+      activeView: 'mine',
+      showMyApprovals: false,
+      guestMode: true,
+    });
   },
 
   async loadUserProfile() {
@@ -114,11 +178,19 @@ Page({
   },
 
   onTaskTap(event) {
+    if (this.data.guestMode) {
+      promptGuestLogin('这是任务体验数据。登录后可以查看详情、审批和领取积分。');
+      return;
+    }
     const taskId = event.currentTarget.dataset.taskId;
     wx.navigateTo({ url: `/pages/task-detail/task-detail?id=${taskId}` });
   },
 
   onSubmitTask() {
+    if (this.data.guestMode) {
+      promptGuestLogin('登录后即可创建并提交自己的任务。');
+      return;
+    }
     wx.navigateTo({ url: '/pages/task-submit/task-submit' });
   },
 
@@ -152,10 +224,22 @@ Page({
   },
 
   onOpenProfile() {
+    if (this.data.guestMode) {
+      promptGuestLogin('登录后可以查看个人资料和积分明细。');
+      return;
+    }
     wx.navigateTo({ url: '/pages/profile/profile' });
   },
 
   onCreateTaskSheet() {
+    if (this.data.guestMode) {
+      promptGuestLogin('登录后即可创建自己的任务清单。');
+      return;
+    }
     wx.navigateTo({ url: '/pages/task-sheet-create/task-sheet-create' });
+  },
+
+  onLogin() {
+    wx.navigateTo({ url: '/pages/login/login' });
   },
 });
